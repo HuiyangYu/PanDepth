@@ -88,7 +88,9 @@ Chr01	30403	30532	Chr01_30403_30532	130	130	7786	100.00	59.89
 Chr01	30805	30840	Chr01_30805_30840	36	36	2231	100.00	61.97
 Chr01	66931	67440	Chr01_66931_67440	510	510	23804	100.00	46.67
 ```
-## 4. License
+## 4. Speed
+The computation time comparison of seven tools for calculating coverage using different numbers of threads when calculating genome coverage with 150Gb of sequencing reads.
+## 5. License
 -------
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
