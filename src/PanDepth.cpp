@@ -1,8 +1,8 @@
 /* The MIT License
 
 Copyright (c) 2023- by Huiyang Yu,
-					   Weiming He,
-					   Chunmei Shi.
+		       Weiming He,
+		       Chunmei Shi.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,7 @@ typedef unsigned long long ubit64_t;
 void bamCov_help()
 {
 	cout<<""
-		"Usage: pandepth  -i in.bam [-g gene.gff|-b region.bed] -o  outPrefix\n"
+		"Usage: pandepth -i in.bam [-g gene.gff|-b region.bed] -o  outPrefix\n"
 		" Input/Output options\n"
 		"   -i    <str>     input of bam/cram file\n"
 		"   -o    <str>     prefix of output file\n"
