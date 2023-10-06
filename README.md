@@ -90,6 +90,8 @@ Chr01	66931	67440	Chr01_66931_67440	510	510	23804	100.00	46.67
 ```
 ## 4. Speed
 The computation time comparison of seven tools for calculating coverage using different numbers of threads when calculating genome coverage with 150Gb of sequencing reads.
+![Speed](https://github.com/HuiyangYu/PanDepth/assets/41780741/6354bdb1-e84b-4ab1-8853-a5da343d6981)
+
 ## 5. License
 -------
 
