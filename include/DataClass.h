@@ -1,7 +1,4 @@
 
-////////////////////////swimming in the sea & flying in the sky //////////////////
-
-
 /*
  * DataClass.h
  */
