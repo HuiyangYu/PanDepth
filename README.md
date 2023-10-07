@@ -1,5 +1,5 @@
 # PanDepth
-<b>PanDepth, an ultra-fast and efficient tool for coverage calculation</b>
+<b>PanDepth, an ultra-fast and efficient genomic tool for coverage calculation</b>
 
 ##  1. Install
 ### (1) Pre-built binaries for x86_64 Linux
