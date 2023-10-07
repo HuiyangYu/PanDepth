@@ -71,7 +71,7 @@ Chr01	193092	194509	Caz01g00080.1	411	411	23014	100.00	56.00
 Chr01	230152	236238	Caz01g00090.1	1869	1869	94470	100.00	50.55
 Chr01	245657	246295	Caz01g00100.1	510	510	29332	100.00	57.51
 ```
-### 3.2 Perform coverage analysis for specific regions
+### 3.3 Perform coverage analysis for specific regions
 ```
 pandepth -i test.bam -b test.bed -o test3
 ```
