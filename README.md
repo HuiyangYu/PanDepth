@@ -19,7 +19,7 @@ cd bin
 ```
 ## 2. Usage
 ```
-Usage: pandepth  -i in.bam [-g gene.gff|-b region.bed] -o  outPrefix
+Usage: pandepth -i in.bam [-g gene.gff|-b region.bed] -o  outPrefix
  Input/Output options
    -i    <str>     input of bam/cram file
    -o    <str>     prefix of output file
