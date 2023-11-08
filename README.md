@@ -19,22 +19,23 @@ cd bin
 ```
 ## 2. Usage
 ```
-Usage: pandepth -i in.bam [-g gene.gff|-b region.bed] -o  outPrefix
- Input/Output options
+Usage: pandepth -i in.bam [-g gene.gff|-b region.bed] -o outPrefix
+ Input/Output options:
    -i    <str>     input of bam/cram file
    -o    <str>     prefix of output file
- Target options
+ Target options:
    -g    <str>     input gff/gtf file for gene region
    -f    <str>     gff/gtf feature type to parse, CDS or exon [CDS]
    -b    <str>     input bed file for list of regions
- Filter options
+   -w    <int>     windows size in bp
+ Filter options:
    -q    <int>     min mapping quality [0]
    -x    <int>     exclude reads with any of the bits in FLAG set [1796]
- Other options
+ Other options:
    -t    <int>     number of threads [3]
    -r    <str>     input reference genome file for cram decode or GC parse
    -c              enable the calculation of GC content within the target region (requires -r)
-   -h              show this help [v2.16]
+   -h              show this help [v2.19]
 ```
 ## 3. Example
 ### 3.1 Perform coverage analysis for each chromosome
@@ -90,8 +91,12 @@ Chr01	66931	67440	Chr01_66931_67440	510	510	23804	100.00	46.67
 ```
 ## 4. Speed
 The computation time comparison of seven tools for calculating coverage using different numbers of threads when calculating genome coverage with 150Gb of sequencing reads.
-![Speed](https://github.com/HuiyangYu/PanDepth/assets/41780741/6354bdb1-e84b-4ab1-8853-a5da343d6981)
-
+![image](https://github.com/HuiyangYu/PanDepth/assets/41780741/36364a18-5e55-4ab7-9daa-115446c64ccb)
+## 5. Memory
+The computation time comparison of seven tools for calculating coverage using different numbers of threads when calculating genome coverage with 150Gb of sequencing reads.
+![image](https://github.com/HuiyangYu/PanDepth/assets/41780741/c7b365a7-d1e0-4ea0-8f6d-4d964f353c45)
+## 6. Accuracy
+The statistical results of PanDepth on depth and coverage are completely consistent with samtools depth.
 ## 5. License
 -------
 
