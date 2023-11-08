@@ -4,7 +4,7 @@
 ##  1. Install
 ### (1) Pre-built binaries for x86_64 Linux
 ```
-wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.1.9/PanDepth-2.19-Linux-x86_64.tar.gz
+wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.19/PanDepth-2.19-Linux-x86_64.tar.gz
 tar zvxf PanDepth-2.19-Linux-x86_64.tar.gz
 cd PanDepth-2.19-Linux-x86_64
 ./pandepth -h
