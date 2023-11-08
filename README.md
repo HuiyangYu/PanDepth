@@ -93,7 +93,7 @@ Chr01	66931	67440	Chr01_66931_67440	510	510	23804	100.00	46.67
 The computation time comparison of seven tools for calculating coverage using different numbers of threads when calculating genome coverage with 150Gb of sequencing reads.
 ![image](https://github.com/HuiyangYu/PanDepth/assets/41780741/36364a18-5e55-4ab7-9daa-115446c64ccb)
 ## 5. Memory
-The Memory requirements comparison of seven tools for calculating coverage using different numbers of threads when calculating genome coverage with 150Gb of sequencing reads.
+The memory requirements comparison of seven tools for calculating coverage using different numbers of threads when calculating genome coverage with 150Gb of sequencing reads.
 ![image](https://github.com/HuiyangYu/PanDepth/assets/41780741/c7b365a7-d1e0-4ea0-8f6d-4d964f353c45)
 ## 6. Accuracy
 The statistical results of PanDepth on depth and coverage are completely consistent with samtools depth.
