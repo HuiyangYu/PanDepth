@@ -96,7 +96,7 @@ The computation time comparison of seven tools for calculating coverage using di
 The memory requirements comparison of seven tools for calculating coverage using different numbers of threads when calculating genome coverage with 150Gb of sequencing reads.
 ![image](https://github.com/HuiyangYu/PanDepth/assets/41780741/c7b365a7-d1e0-4ea0-8f6d-4d964f353c45)
 ## 6. Accuracy
-The statistical results of PanDepth on depth and coverage are completely consistent with samtools depth.
+The statistical results of PanDepth on depth and coverage are completely consistent with samtools depth (version >=1.10).
 ## 7. License
 -------
 
