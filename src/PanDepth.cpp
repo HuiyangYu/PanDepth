@@ -261,7 +261,7 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 	return 1 ;
 }
 //
-void  StatChrDepthWin ( short unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat ,int MeMStart, int MeMEnd ,int ShiftPosition)
+void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat ,int MeMStart, int MeMEnd ,int ShiftPosition)
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
 	{
@@ -288,7 +288,7 @@ void  StatChrDepthWin ( short unsigned int *depth  ,  map <string,GeneInfo>  &  
 	}
 }
 
-void  StatChrDepth ( short unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat)
+void  StatChrDepth ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat)
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
 	{
@@ -410,7 +410,7 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 
 				int ThisWinDowLen=MeMEnd-MeMStart+1;
 				ThisWinDowLen+=(2*MeMBinWindowsEdge);
-				unsigned short int *depth = new unsigned short int [ThisWinDowLen];
+				unsigned int *depth = new unsigned int [ThisWinDowLen];
 				for (int  ccv=0 ; ccv<ThisWinDowLen  ; ccv++)
 				{
 					depth[ccv]=0;
@@ -1283,7 +1283,7 @@ int main(int argc, char *argv[])
 
 	else
 	{
-		unsigned short int **depth = new unsigned short int*[(header->n_targets)];
+		unsigned int **depth = new unsigned int*[(header->n_targets)];
 		bool  *EndChr = new bool [(header->n_targets)];
 		map <int,int> :: iterator  *ArryIt = new map <int,int> :: iterator [(header->n_targets)];
 		map <int,int> :: iterator  *ArryItEnd = new map <int,int> :: iterator [(header->n_targets)];
@@ -1305,7 +1305,7 @@ int main(int argc, char *argv[])
 				ArryItEnd[i]=(MergerIt->second).end();
 			}
 
-			depth[i] = new unsigned short int [CC];
+			depth[i] = new unsigned int [CC];
 
 			for (int32_t j =0 ; j< CC ; j++)
 			{
