@@ -1,6 +1,7 @@
 /* The MIT License
 
-   Copyright (c) 2023- by Huiyang Yu,
+   Copyright (c) 2023- by 
+   Huiyang Yu,
    Weiming He,
    Chunmei Shi.
 
