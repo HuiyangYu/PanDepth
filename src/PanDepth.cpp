@@ -65,15 +65,16 @@ void bamCov_help()
 		"   -g    <str>     input gff/gtf file for gene region\n"
 		"   -f    <str>     gff/gtf feature type to parse, CDS or exon [CDS]\n"
 		"   -b    <str>     input bed file for list of regions\n"
-		"   -w    <int>     windows size in bp\n"
+		"   -w    <int>     windows size (bp)\n"
+		"   -a              output all the site depth\n"
 		" Filter options:\n"
 		"   -q    <int>     min mapping quality [0]\n"
 		"   -x    <int>     exclude reads with any of the bits in FLAG set [1796]\n"
 		" Other options:\n"
 		"   -t    <int>     number of threads [3]\n"
-		"   -r    <str>     input reference genome file for cram decode or GC parse\n"
-		"   -c              enable the calculation of GC content within the target region (requires -r)\n"
-		"   -h              show this help [v2.20]\n"
+		"   -r    <str>     reference genome file for cram decode or GC parse\n"
+		"   -c              enable the calculation of GC content (requires -r)\n"
+		"   -h              show this help [v2.21]\n"
 		"\n";
 }
 
@@ -108,6 +109,10 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 		else if (flag  ==  "c" )
 		{
 			paraFA04->gc=true;
+		}
+		else if (flag  ==  "a" )
+		{
+			paraFA04->SiteOutPut=true;
 		}
 		else if (flag  ==  "r" )
 		{
@@ -190,10 +195,10 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 			if(i + 1 == argc) {LogLackArg(flag); return 0;}
 			i++;
 			paraFA04->WinSize=atoi(argv[i]);
-			if ( ( paraFA04->WinSize) <150)  
+			if ( ( paraFA04->WinSize) <10)  
 			{
-				cerr<<"Warning: -w must be >=150,auto be 150\n";
-				paraFA04->WinSize=150;
+				cerr<<"Warning: -w should >= 10, set to 10\n";
+				paraFA04->WinSize=10;
 			}
 		}
 		else if (flag == "q")
@@ -261,6 +266,8 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 	(paraFA04->InStr3)=add_Asuffix(paraFA04->InStr3);
 	return 1 ;
 }
+
+
 //
 void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat ,int MeMStart, int MeMEnd ,int ShiftPosition)
 {
@@ -275,7 +282,7 @@ void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneSt
 			int ii=((iter->second).CDSList[tt].first-1)-ShiftPosition;
 			int End=((iter->second).CDSList[tt].second)-ShiftPosition;
 
-			
+
 			for (  ; ii<End ; ii++)
 			{
 				if ( depth[ii]>0 )
@@ -289,7 +296,30 @@ void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneSt
 	}
 }
 
-void  StatChrDepth ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat)
+/*
+   void  StatChrDepth ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat)
+   {
+   for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
+   {
+   int Size=(iter->second).CDSList.size();
+   for (int tt=0  ; tt< Size ; tt++)
+   {
+   int ii=(iter->second).CDSList[tt].first-1;
+   int End=(iter->second).CDSList[tt].second ;
+   for (  ; ii<End ; ii++)
+   {
+   if ( depth[ii]>0 )
+   {
+   (iter->second).GeneCover++;
+   (iter->second).GeneDepth+=depth[ii];
+   }
+   }
+   }
+   }
+   }
+   */
+
+void  StatChrDepthLowMEM (  SiteInfo  * depth  ,  map <string,GeneInfo>  &  GeneStat)
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
 	{
@@ -300,17 +330,158 @@ void  StatChrDepth ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat)
 			int End=(iter->second).CDSList[tt].second ;
 			for (  ; ii<End ; ii++)
 			{
-				if ( depth[ii]>0 )
+				if ( (depth[ii].Depth)>0 )
 				{
 					(iter->second).GeneCover++;
-					(iter->second).GeneDepth+=depth[ii];
+					(iter->second).GeneDepth+=(depth[ii].Depth);
+				}
+			}
+		}
+	}
+}
+
+//
+
+
+
+void ProDealChrBambaiOUTSite ( string  & BamPath , In3str1v * paraFA04 , SiteInfo **  depth , map <int,map <int,int> >  & RegionMerger ,  vector <int> &  ChrNumVer , map <int,map <string,GeneInfo> > & GeneData , int &  numThreads )
+{
+
+	htsFile *fphts;
+	sam_hdr_t *headerAA;
+	int64_t rcnt;
+
+
+	int n=1;
+	int i=0;
+	hts_idx_t *idx=NULL;
+	int64_t *cnt ;
+	int ret ;
+
+	int min_mapQ= (paraFA04->InInt);
+	fphts = hts_open(BamPath.c_str(), "r");
+
+	hts_set_log_level(HTS_LOG_OFF);
+	//
+	if(fphts->format.format == htsExactFormat::cram)
+	{
+		const char* ref_file = (paraFA04->reference).c_str();
+		hts_set_fai_filename(fphts, ref_file);
+		hts_set_opt(fphts, CRAM_OPT_DECODE_MD, 0);
+		hts_set_opt(fphts, CRAM_OPT_REQUIRED_FIELDS, SAM_FLAG | SAM_RNAME | SAM_POS | SAM_MAPQ | SAM_CIGAR);
+	}
+
+	if (fphts)
+	{
+		idx=sam_index_load(fphts,BamPath.c_str());
+	}
+
+	if (fphts == 0 || idx == 0 ) 
+	{
+		cerr<<"Error: Failed to open the index file or BAM/CRAM file: "<<BamPath<<endl; 
+		return ;
+	}
+	//
+	hts_set_opt(fphts, HTS_OPT_NTHREADS, numThreads);
+	hts_set_opt(fphts, CRAM_OPT_DECODE_MD, 0);
+	hts_set_opt(fphts, CRAM_OPT_REQUIRED_FIELDS, SAM_FLAG | SAM_RNAME | SAM_POS | SAM_MAPQ | SAM_CIGAR);
+	headerAA = sam_hdr_read(fphts);
+
+	if (headerAA == NULL) { cerr<<"Error: Failed to read the header for the BAM/CRAM file: "<<BamPath<<endl; return  ;}
+
+	bam1_t *aln = bam_init1();
+	uint32_t flags = (paraFA04->flags);
+	hts_itr_t *iter;
+	uint32_t *cigar;
+
+	int AAA=ChrNumVer.size();
+	map <int,map <int,int> > :: iterator  RegionIt ;
+	map <int,int> :: iterator MapSSEE;
+	//	map <int,int> :: iterator MapSSEEV2;
+
+
+	for (int po=0; po<AAA ; po++)
+	{
+		int ChrNum=ChrNumVer[po];
+		int ChrLen=(headerAA->target_len[ChrNum]);
+		string ChrName=headerAA->target_name[ChrNum];
+
+		RegionIt =  RegionMerger.find(ChrNum);
+		MapSSEE =(RegionIt->second).begin();
+		int NumberRegionSize=(RegionIt->second).size();
+
+		char* CharMap = new char[NumberRegionSize*128];
+		char ** RegionArry = new  char * [NumberRegionSize];
+
+		uint64_t CountRegion = 0;
+
+
+		for(  ; MapSSEE!=(RegionIt->second).end() ; MapSSEE++)
+		{
+			long beg=(MapSSEE->first);
+			if  (beg<1) {beg=1;}
+			long end=(MapSSEE->second);
+			if (end>ChrLen) {end=ChrLen;}
+			RegionArry[CountRegion++] = CharMap;
+			CharMap += (sprintf(CharMap, "%s:%lu-%lu", ChrName.c_str(), beg, end)+1);
+		}
+		rcnt = CountRegion;
+		iter = sam_itr_regarray(idx, headerAA, RegionArry, rcnt);
+
+		int32_t endTmp;
+		int32_t StartRead;
+		while ((ret = sam_itr_next(fphts, iter, aln)) >= 0)
+		{
+			if ( aln->core.flag & flags )  { continue; }
+			if ( (aln->core).qual < (paraFA04->InInt) )	{	continue ;}
+			cigar = bam_get_cigar(aln);
+			StartRead=((aln->core).pos);
+			for(int i=0; i < aln->core.n_cigar;++i)
+			{
+				int cig=bam_cigar_op(cigar[i]);
+				int ncig = bam_cigar_oplen(cigar[i]);
+				switch (cig)
+				{
+					case 0:
+					case 7:
+					case 8:
+						endTmp=StartRead+ncig;
+						for (  ; StartRead<endTmp;StartRead++)
+						{
+							(depth[ChrNum][StartRead]).Depth++;
+						}
+						break;
+					case 2:
+					case 3:
+						StartRead=StartRead+ncig;
+						break;
 				}
 			}
 		}
 
+
+		auto GeneDataIT=GeneData.find(ChrNum);
+
+
+		StatChrDepthLowMEM( depth[ChrNum]  , GeneDataIT->second);
+		delete [] RegionArry ;
+
 	}
+
+
+	//delete CharMap ;
+
+
+	bam_destroy1(aln);
+	if (idx) hts_idx_destroy(idx);
+	if (iter) sam_itr_destroy(iter);
+	if (headerAA) sam_hdr_destroy(headerAA);
+
+
+
+
 }
-//
+
 
 
 void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,map <int,int> >  & RegionMerger , vector <int> &  ChrNumVer ,  map <int,map <string,GeneInfo> > & GeneData , int &  numThreads  )
@@ -370,7 +541,7 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 	map <int,int> :: iterator MapSSEE ;
 	map <int,int> :: iterator MapSSEEV2 ;
 
-		//int  MeMBinWindows=int (ChrLen/40) ; 
+	//int  MeMBinWindows=int (ChrLen/40) ; 
 	int  MeMBinWindows=1000000 ; 
 	//if  (MeMBinWindows<20000000) {MeMBinWindows=20000000;}
 	//int  MeMBinWindowsEdge=int(MeMBinWindows/10);
@@ -392,7 +563,7 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 		uint64_t CountRegion = 0;
 		int MeMStart=(MapSSEE->first); if (MeMStart<1) {MeMStart=1;}
 		int MeMEnd=MeMStart+MeMBinWindows-1; if (MeMEnd>ChrLen) {MeMEnd=ChrLen;}
-		
+
 		for(  ; MapSSEE!=(RegionIt->second).end() ; MapSSEE++)
 		{
 			long beg=(MapSSEE->first)-1;
@@ -422,7 +593,7 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 				rcnt = CountRegion;
 				iter = sam_itr_regarray(idx, headerAA, RegionArry, rcnt);
 
-//				cerr<<ChrName<<"\thewm\t"<<MeMStart<<"\t"<<MeMEnd<<"\t"<<"\t"<<ShiftPosition<<"\t"<<CountRegion<<endl;
+				//				cerr<<ChrName<<"\thewm\t"<<MeMStart<<"\t"<<MeMEnd<<"\t"<<"\t"<<ShiftPosition<<"\t"<<CountRegion<<endl;
 
 
 				while ((ret = sam_itr_next(fphts, iter, aln)) >= 0)
@@ -1170,121 +1341,307 @@ int main(int argc, char *argv[])
 	if ( ( ( access(bambai.c_str(), 0) == 0 )  ||  (access(crambai.c_str(), 0) == 0 )  )  && (paraFA04->TF ) )	
 	{
 
-		ubit64_t GenomeLen=0;
-		vector< pair<int, int> > Int2Len;
-		auto RegionIt=RegionMerger.begin();
-		int ChrNumRun=0;
-		int MaxChrLenTen=0;
-		while (RegionIt!= RegionMerger.end())
+		if(paraFA04->SiteOutPut)
 		{
-			int  ChrNum=RegionIt->first;
-			GenomeLen+=(header->target_len[ChrNum]);
-			Int2Len.push_back({ChrNum,header->target_len[ChrNum]});
-			if (header->target_len[ChrNum]>MaxChrLenTen)
+			SiteInfo **depth = new SiteInfo *[(header->n_targets)];
+			for(int i = 0; i < (header->n_targets); i++)  
 			{
-				MaxChrLenTen=header->target_len[ChrNum];
-			}
-			RegionIt++;
-			ChrNumRun++;
-		}
-
-
-		MaxChrLenTen=int(MaxChrLenTen/10);
-		RegionIt=RegionMerger.begin();
-		int BigChrNum=0;
-		while (RegionIt!= RegionMerger.end())
-		{
-			int  ChrNum=RegionIt->first;
-			if (header->target_len[ChrNum]>MaxChrLenTen)
-			{
-				BigChrNum++;
-			}
-			RegionIt++;
-		}
-
-		int BamThreadSum=0;
-		if ( (paraFA04->CPU) >  BigChrNum )
-		{
-			BamThreadSum=(paraFA04->CPU)-BigChrNum;
-			(paraFA04->CPU)=BigChrNum;
-		}
-		ubit64_t meanLenDea=GenomeLen/(paraFA04->CPU)+2;
-		map <int,vector <int> >  VecChr;
-		map <int,vector <int> > :: iterator  VecChrITT;
-
-		sort(Int2Len.begin(),Int2Len.end(),[](const pair<int, int>& a, const pair<int, int>& b){ return a.second > b.second; }); 
-
-		int StBase=0;
-		int ShiftQ=0;
-		int RunCPU=(paraFA04->CPU);
-		ubit64_t *CutThread = new ubit64_t [RunCPU];
-		int  *BamThread =new int[RunCPU];
-		for (int i = 0; i < RunCPU ;++i)
-		{
-			CutThread[i]=0;
-			BamThread[i]=0;
-		}
-
-		while(BamThreadSum>0)
-		{
-			ShiftQ=StBase%RunCPU;
-			StBase++;
-			BamThread[ShiftQ]++;
-			BamThreadSum--;
-		}
-		ShiftQ=0;
-		StBase=0;
-		for (int i = 0; i != Int2Len.size(); i++)
-		{
-			int  ChrNum=Int2Len[i].first;
-			int  Num=int((i-ShiftQ)%RunCPU)+StBase;
-
-			VecChrITT=VecChr.find(Num);
-			if  (VecChrITT==VecChr.end())
-			{
-				vector <int> tmp;
-				tmp.emplace_back(ChrNum);
-				VecChr.insert( map <int,vector <int> >  :: value_type (Num,tmp));
-			}
-			else
-			{
-				(VecChrITT->second).emplace_back(ChrNum);
+				int CC=(header->target_len[i])+500;
+				MergerIt=RegionMerger.find(i);
+				string ChrName=header->target_name[i];				
+				if (MergerIt==RegionMerger.end())
+				{
+					CC=500;
+				}
+				depth[i] = new SiteInfo [CC];
+				//				cerr<<ChrName<<"\t"<<CC<<endl;
+				for ( int32_t j =0 ; j< CC ; j++ )
+				{
+					depth[i][j].Depth=0;
+				}
 			}
 
-			CutThread[Num]+=Int2Len[i].second;
-			if (  CutThread[Num] >meanLenDea    )
+
+
+
+
+			ubit64_t GenomeLen=0;
+			vector< pair<int, int> > Int2Len;
+			auto RegionIt=RegionMerger.begin();
+			int ChrNumRun=0;
+			int MaxChrLenTen=0;
+			while (RegionIt!= RegionMerger.end())
 			{
+				int  ChrNum=RegionIt->first;
+				GenomeLen+=(header->target_len[ChrNum]);
+				Int2Len.push_back({ChrNum,header->target_len[ChrNum]});
+				if (header->target_len[ChrNum]>MaxChrLenTen)
+				{
+					MaxChrLenTen=header->target_len[ChrNum];
+				}
+				RegionIt++;
+				ChrNumRun++;
+			}
+
+
+			MaxChrLenTen=int(MaxChrLenTen/10);
+			RegionIt=RegionMerger.begin();
+			int BigChrNum=0;
+			while (RegionIt!= RegionMerger.end())
+			{
+				int  ChrNum=RegionIt->first;
+				if (header->target_len[ChrNum]>MaxChrLenTen)
+				{
+					BigChrNum++;
+				}
+				RegionIt++;
+			}
+
+			int BamThreadSum=0;
+			if ( (paraFA04->CPU) >  BigChrNum )
+			{
+				BamThreadSum=(paraFA04->CPU)-BigChrNum;
+				(paraFA04->CPU)=BigChrNum;
+			}
+			ubit64_t meanLenDea=GenomeLen/(paraFA04->CPU)+2;
+			map <int,vector <int> >  VecChr;
+			map <int,vector <int> > :: iterator  VecChrITT;
+
+			sort(Int2Len.begin(),Int2Len.end(),[](const pair<int, int>& a, const pair<int, int>& b){ return a.second > b.second; }); 
+
+			int StBase=0;
+			int ShiftQ=0;
+			int RunCPU=(paraFA04->CPU);
+			ubit64_t *CutThread = new ubit64_t [RunCPU];
+			int  *BamThread =new int[RunCPU];
+			for (int i = 0; i < RunCPU ;++i)
+			{
+				CutThread[i]=0;
+				BamThread[i]=0;
+			}
+
+			while(BamThreadSum>0)
+			{
+				ShiftQ=StBase%RunCPU;
 				StBase++;
-				RunCPU--;
-				ShiftQ=i+1;
+				BamThread[ShiftQ]++;
+				BamThreadSum--;
 			}
-		}
-		delete [] CutThread ;
+			ShiftQ=0;
+			StBase=0;
+			for (int i = 0; i != Int2Len.size(); i++)
+			{
+				int  ChrNum=Int2Len[i].first;
+				int  Num=int((i-ShiftQ)%RunCPU)+StBase;
 
-		vector<thread> ThreadsVector ;
-		VecChrITT=VecChr.begin();
-		ShiftQ=0;
-		while(VecChrITT!=VecChr.end())
+				VecChrITT=VecChr.find(Num);
+				if  (VecChrITT==VecChr.end())
+				{
+					vector <int> tmp;
+					tmp.emplace_back(ChrNum);
+					VecChr.insert( map <int,vector <int> >  :: value_type (Num,tmp));
+				}
+				else
+				{
+					(VecChrITT->second).emplace_back(ChrNum);
+				}
+
+				CutThread[Num]+=Int2Len[i].second;
+				if (  CutThread[Num] >meanLenDea    )
+				{
+					StBase++;
+					RunCPU--;
+					ShiftQ=i+1;
+				}
+			}
+			delete [] CutThread ;
+
+			vector<thread> ThreadsVector ;
+			VecChrITT=VecChr.begin();
+			ShiftQ=0;
+			while(VecChrITT!=VecChr.end())
+			{
+				if  (BamThread[ShiftQ]> 0 ) {BamThread[ShiftQ]=2;}
+				ThreadsVector.emplace_back(ProDealChrBambaiOUTSite , std::ref(BamPath), paraFA04,std::ref(depth) ,std::ref(RegionMerger) , std::ref(VecChrITT->second),std::ref(GeneData) ,std::ref(BamThread[ShiftQ]));
+				VecChrITT++;
+				ShiftQ++;
+			}
+
+
+			int AA=ThreadsVector.size();
+			for (int i=0 ; i<AA ; i++)
+			{
+				ThreadsVector[i].join();
+			}
+			ThreadsVector.clear();
+			delete [] BamThread ;
+
+
+
+
+
+			string  OutSSiteFile=PrefixO+".SiteDepth.gz";
+			ogzstream  OUTFA (OutSSiteFile.c_str());
+			for(int i = 0; i < (header->n_targets); i++)
+			{
+				int CC=(header->target_len[i]);
+				MergerIt=RegionMerger.find(i);
+				if (MergerIt==RegionMerger.end())
+				{
+					CC=100;
+					continue ;
+				}
+//								CC=1000;
+				string ChrName=header->target_name[i];
+				for (int32_t j =0 ; j< CC ; j++)
+				{
+					OUTFA<<ChrName<<"\t"<<j<<"\t"<<depth[i][j].Depth<<"\n";
+				}
+			}
+			OUTFA.close() ;
+
+
+
+
+
+
+
+
+
+
+			for(int i = 0; i <(header->n_targets); i++)
+			{
+				delete[] depth[i];  
+			}
+			delete[] depth;
+
+
+
+
+		}
+		else
 		{
-			if  (BamThread[ShiftQ]> 0 ) {BamThread[ShiftQ]=2;}
-			ThreadsVector.emplace_back(ProDealChrBambai , std::ref(BamPath), paraFA04, std::ref(RegionMerger) , std::ref(VecChrITT->second),std::ref(GeneData) ,std::ref(BamThread[ShiftQ]));
-			VecChrITT++;
-			ShiftQ++;
+			ubit64_t GenomeLen=0;
+			vector< pair<int, int> > Int2Len;
+			auto RegionIt=RegionMerger.begin();
+			int ChrNumRun=0;
+			int MaxChrLenTen=0;
+			while (RegionIt!= RegionMerger.end())
+			{
+				int  ChrNum=RegionIt->first;
+				GenomeLen+=(header->target_len[ChrNum]);
+				Int2Len.push_back({ChrNum,header->target_len[ChrNum]});
+				if (header->target_len[ChrNum]>MaxChrLenTen)
+				{
+					MaxChrLenTen=header->target_len[ChrNum];
+				}
+				RegionIt++;
+				ChrNumRun++;
+			}
+
+
+			MaxChrLenTen=int(MaxChrLenTen/10);
+			RegionIt=RegionMerger.begin();
+			int BigChrNum=0;
+			while (RegionIt!= RegionMerger.end())
+			{
+				int  ChrNum=RegionIt->first;
+				if (header->target_len[ChrNum]>MaxChrLenTen)
+				{
+					BigChrNum++;
+				}
+				RegionIt++;
+			}
+
+			int BamThreadSum=0;
+			if ( (paraFA04->CPU) >  BigChrNum )
+			{
+				BamThreadSum=(paraFA04->CPU)-BigChrNum;
+				(paraFA04->CPU)=BigChrNum;
+			}
+			ubit64_t meanLenDea=GenomeLen/(paraFA04->CPU)+2;
+			map <int,vector <int> >  VecChr;
+			map <int,vector <int> > :: iterator  VecChrITT;
+
+			sort(Int2Len.begin(),Int2Len.end(),[](const pair<int, int>& a, const pair<int, int>& b){ return a.second > b.second; }); 
+
+			int StBase=0;
+			int ShiftQ=0;
+			int RunCPU=(paraFA04->CPU);
+			ubit64_t *CutThread = new ubit64_t [RunCPU];
+			int  *BamThread =new int[RunCPU];
+			for (int i = 0; i < RunCPU ;++i)
+			{
+				CutThread[i]=0;
+				BamThread[i]=0;
+			}
+
+			while(BamThreadSum>0)
+			{
+				ShiftQ=StBase%RunCPU;
+				StBase++;
+				BamThread[ShiftQ]++;
+				BamThreadSum--;
+			}
+			ShiftQ=0;
+			StBase=0;
+			for (int i = 0; i != Int2Len.size(); i++)
+			{
+				int  ChrNum=Int2Len[i].first;
+				int  Num=int((i-ShiftQ)%RunCPU)+StBase;
+
+				VecChrITT=VecChr.find(Num);
+				if  (VecChrITT==VecChr.end())
+				{
+					vector <int> tmp;
+					tmp.emplace_back(ChrNum);
+					VecChr.insert( map <int,vector <int> >  :: value_type (Num,tmp));
+				}
+				else
+				{
+					(VecChrITT->second).emplace_back(ChrNum);
+				}
+
+				CutThread[Num]+=Int2Len[i].second;
+				if (  CutThread[Num] >meanLenDea    )
+				{
+					StBase++;
+					RunCPU--;
+					ShiftQ=i+1;
+				}
+			}
+			delete [] CutThread ;
+
+			vector<thread> ThreadsVector ;
+			VecChrITT=VecChr.begin();
+			ShiftQ=0;
+			while(VecChrITT!=VecChr.end())
+			{
+				if  (BamThread[ShiftQ]> 0 ) {BamThread[ShiftQ]=2;}
+				ThreadsVector.emplace_back(ProDealChrBambai , std::ref(BamPath), paraFA04, std::ref(RegionMerger) , std::ref(VecChrITT->second),std::ref(GeneData) ,std::ref(BamThread[ShiftQ]));
+				VecChrITT++;
+				ShiftQ++;
+			}
+
+			int AA=ThreadsVector.size();
+			for (int i=0 ; i<AA ; i++)
+			{
+				ThreadsVector[i].join();
+			}
+			ThreadsVector.clear();
+			delete [] BamThread ;
+
 		}
 
-		int AA=ThreadsVector.size();
-		for (int i=0 ; i<AA ; i++)
-		{
-			ThreadsVector[i].join();
-		}
-		ThreadsVector.clear();
-		delete [] BamThread ;
+
+
+
 	}
 
 
 	else
 	{
-		unsigned int **depth = new unsigned int*[(header->n_targets)];
+		SiteInfo **depth = new SiteInfo *[(header->n_targets)];
 		bool  *EndChr = new bool [(header->n_targets)];
 		map <int,int> :: iterator  *ArryIt = new map <int,int> :: iterator [(header->n_targets)];
 		map <int,int> :: iterator  *ArryItEnd = new map <int,int> :: iterator [(header->n_targets)];
@@ -1306,11 +1663,11 @@ int main(int argc, char *argv[])
 				ArryItEnd[i]=(MergerIt->second).end();
 			}
 
-			depth[i] = new unsigned int [CC];
+			depth[i] = new SiteInfo  [CC];
 
 			for (int32_t j =0 ; j< CC ; j++)
 			{
-				depth[i][j]=0;
+				depth[i][j].Depth=0;
 			}
 		}
 
@@ -1393,7 +1750,7 @@ int main(int argc, char *argv[])
 						endTmp=StartRead+ncig;
 						for (  ; StartRead<endTmp;StartRead++)
 						{
-							depth[(aln->core).tid][StartRead]++;
+							(depth[(aln->core).tid][StartRead]).Depth++;
 						}
 						break;
 					case 2:
@@ -1417,11 +1774,37 @@ int main(int argc, char *argv[])
 			else
 			{
 				GeneDataIT=GeneData.find(i);
-				StatChrDepth ( depth[i] , GeneDataIT->second );
+				StatChrDepthLowMEM ( depth[i] , GeneDataIT->second );
 			}
 		}
 
 		bam_destroy1(aln);
+
+
+		if(paraFA04->SiteOutPut)
+		{
+			string  OutSSiteFile=PrefixO+".SiteDepth.gz";
+			ogzstream  OUTFA (OutSSiteFile.c_str());
+			for(int i = 0; i < (header->n_targets); i++)  
+			{
+				int CC=(header->target_len[i]);
+				MergerIt=RegionMerger.find(i);
+				if (MergerIt==RegionMerger.end())
+				{
+					CC=100;
+					continue ;
+				}
+//								CC=1000;
+				string ChrName=header->target_name[i];
+				for (int32_t j =0 ; j< CC ; j++)
+				{
+					OUTFA<<ChrName<<"\t"<<j<<"\t"<<depth[i][j].Depth<<"\n";
+				}
+			}
+			OUTFA.close() ;
+		}
+
+
 
 		for(int i = 0; i <(header->n_targets); i++)
 		{
@@ -1498,7 +1881,7 @@ int main(int argc, char *argv[])
 					SS_Len+=((GeneInfoIT->second).GeneLength);
 					SS_GCGC+=((GeneInfoIT->second).GeneGCGC);
 					SS_TotalD+=((GeneInfoIT->second).GeneDepth);
-					
+
 					ChrSS_Cov+=((GeneInfoIT->second).GeneCover);
 					ChrSS_Len+=((GeneInfoIT->second).GeneLength);
 					ChrSS_GCGC+=((GeneInfoIT->second).GeneGCGC);
@@ -1622,7 +2005,7 @@ int main(int argc, char *argv[])
 					SS_Cov+=((GeneInfoIT->second).GeneCover);
 					SS_Len+=((GeneInfoIT->second).GeneLength);
 					SS_TotalD+=((GeneInfoIT->second).GeneDepth);
-					
+
 					ChrSS_Cov+=((GeneInfoIT->second).GeneCover);
 					ChrSS_Len+=((GeneInfoIT->second).GeneLength);
 					ChrSS_TotalD+=((GeneInfoIT->second).GeneDepth);
