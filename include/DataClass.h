@@ -27,8 +27,9 @@ class In3str1v {
 		int  CPU ;
 		bool TF2 ;
 		bool gc ;
-		int readoverLen ;
+		bool SiteOutPut ;
 		uint32_t flags ;
+		int WinSize;
 		string InStr1 ;
 		string InStr2 ;
 		string InStr3 ;
@@ -45,11 +46,12 @@ class In3str1v {
 			gc=false;
 			TF=true ;
 			TF2=true ;
+			SiteOutPut=false;
 			InInt=0 ;
 			InInt2=0;
 			flags=1796;
 			CPU=3;
-			readoverLen=0;
+			WinSize=0;
 		}
 };
 
@@ -73,6 +75,15 @@ class  GeneInfo {
 			GeneGCGC=0;
 		}
 };
+
+
+
+struct SiteInfo
+{
+	   unsigned int Depth: 18;
+};
+
+
 
 #endif /* DataClass_H_ */
 
