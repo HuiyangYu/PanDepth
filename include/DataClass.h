@@ -87,4 +87,3 @@ struct SiteInfo
 
 #endif /* DataClass_H_ */
 
-//////////////// swimming in the sky and flying in the sea ////////////////
