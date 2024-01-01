@@ -4,9 +4,9 @@
 ##  1. Install
 ### (1) Pre-built binaries for x86_64 Linux
 ```
-wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.20/PanDepth-2.20-Linux-x86_64.tar.gz
-tar zvxf PanDepth-2.20-Linux-x86_64.tar.gz
-cd PanDepth-2.20-Linux-x86_64
+wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.21/PanDepth-2.21-Linux-x86_64.tar.gz
+tar zvxf PanDepth-2.21-Linux-x86_64.tar.gz
+cd PanDepth-2.21-Linux-x86_64
 ./pandepth -h
 ```
 ### (2) Building from source
@@ -19,7 +19,7 @@ cd bin
 ```
 ## 2. Usage
 ```
-Usage: pandepth -i in.bam [-g gene.gff|-b region.bed] -o outPrefix
+Usage: pandepth -i in.bam [-g gene.gff | -b region.bed] -o outPrefix
  Input/Output options:
    -i    <str>     input of bam/cram file
    -o    <str>     prefix of output file
@@ -28,14 +28,15 @@ Usage: pandepth -i in.bam [-g gene.gff|-b region.bed] -o outPrefix
    -f    <str>     gff/gtf feature type to parse, CDS or exon [CDS]
    -b    <str>     input bed file for list of regions
    -w    <int>     windows size (bp)
+   -a              output all the site depth
  Filter options:
    -q    <int>     min mapping quality [0]
    -x    <int>     exclude reads with any of the bits in FLAG set [1796]
  Other options:
    -t    <int>     number of threads [3]
-   -r    <str>     input reference genome file for cram decode or GC parse
-   -c              enable the calculation of GC content within the target region (requires -r)
-   -h              show this help [v2.20]
+   -r    <str>     reference genome file for cram decode or GC parse
+   -c              enable the calculation of GC content (requires -r)
+   -h              show this help [v2.21]
 ```
 ## 3. Example
 ### 3.1 Perform coverage analysis for each chromosome
@@ -88,6 +89,22 @@ Chr01	30102	30289	Chr01_30102_30289	188	188	8394	100.00	44.65
 Chr01	30403	30532	Chr01_30403_30532	130	130	7786	100.00	59.89
 Chr01	30805	30840	Chr01_30805_30840	36	36	2231	100.00	61.97
 Chr01	66931	67440	Chr01_66931_67440	510	510	23804	100.00	46.67
+### 3.4 Perform coverage analysis for specific window size (100 bp)
+```
+pandepth -i test.bam -w 100 -o test4
+```
+The output file, named 'test4.win.stat.gz', follows the following format:
+```
+#Chr	Start	End	Length	CoveredSite	TotalDepth	Coverage(%)	MeanDepth
+Chr01	1	100	100	0	0	0.00	0.00
+Chr01	101	200	100	0	0	0.00	0.00
+Chr01	201	300	100	26	26	26.00	0.26
+Chr01	301	400	100	12	12	12.00	0.12
+Chr01	401	500	100	65	275	65.00	2.75
+Chr01	501	600	100	100	770	100.00	7.70
+Chr01	601	700	100	100	679	100.00	6.79
+Chr01	701	800	100	33	93	33.00	0.93
+Chr01	801	900	100	0	0	0.00	0.00
 ```
 ## 4. Speed
 The computation time comparison of seven tools for calculating coverage using different numbers of threads with 150Gb of sequencing reads.
