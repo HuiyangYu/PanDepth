@@ -195,10 +195,10 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 			if(i + 1 == argc) {LogLackArg(flag); return 0;}
 			i++;
 			paraFA04->WinSize=atoi(argv[i]);
-			if ( ( paraFA04->WinSize) <10)  
+			if ( ( paraFA04->WinSize) <1)  
 			{
-				cerr<<"Warning: -w should >= 10, set to 10\n";
-				paraFA04->WinSize=10;
+				cerr<<"Warning: -w should >= 1, set to 1\n";
+				paraFA04->WinSize=1;
 			}
 		}
 		else if (flag == "q")
@@ -1198,10 +1198,14 @@ int main(int argc, char *argv[])
 	{
 		//MeMBinWindows
 		int  MeMBinWindows=1000000 ;
-		if ((paraFA04->WinSize) < 150 )
+		if ((paraFA04->WinSize) ==0 )
 		{
 			cout<<"Warning: GFF/GTF or BED was not provided, the total chromosome length will be used as the parsing region.\n";
 			(paraFA04->InInt2)=0;
+		}
+		else if ((paraFA04->WinSize) <150 )
+		{
+			(paraFA04->InInt2)=6;
 		}
 		else
 		{
@@ -1210,7 +1214,7 @@ int main(int argc, char *argv[])
 		}
 
 
-		for(int i = 0; i < (header->n_targets); i++)  
+		for(int i = 0; i < (header->n_targets); i++)
 		{
 			Start=1;
 			End=2;
@@ -1296,7 +1300,7 @@ int main(int argc, char *argv[])
 		OutStatFile=PrefixO+".bed.stat.gz";
 		OutHeader="#Chr\tStart\tEnd\tGeneID\tLength\tCoveredSite\tTotalDepth\tCoverage(%)\tMeanDepth\n";
 	}
-	else if ((paraFA04->InInt2)==5)
+	else if ((paraFA04->InInt2)==5 ||  (paraFA04->InInt2)==6 )
 	{
 		OutStatFile=PrefixO+".win.stat.gz";
 		OutHeader="#Chr\tStart\tEnd\tLength\tCoveredSite\tTotalDepth\tCoverage(%)\tMeanDepth\n";
@@ -1319,7 +1323,7 @@ int main(int argc, char *argv[])
 		{
 			OutHeader="#Chr\tStart\tEnd\tGeneID\tLength\tCoveredSite\tTotalDepth\tGC(%)\tCoverage(%)\tMeanDepth\n";
 		}
-		else if ((paraFA04->InInt2)==5)
+		else if ((paraFA04->InInt2)==5|| (paraFA04->InInt2)==6)
 		{
 			OutHeader="#Chr\tStart\tEnd\tLength\tCoveredSite\tTotalDepth\tGC(%)\tCoverage(%)\tMeanDepth\n";
 		}
@@ -1341,7 +1345,7 @@ int main(int argc, char *argv[])
 	if ( ( ( access(bambai.c_str(), 0) == 0 )  ||  (access(crambai.c_str(), 0) == 0 )  )  && (paraFA04->TF ) )	
 	{
 
-		if(paraFA04->SiteOutPut)
+		if((paraFA04->SiteOutPut)  ||  ((paraFA04->InInt2)==6)  )
 		{
 			SiteInfo **depth = new SiteInfo *[(header->n_targets)];
 			for(int i = 0; i < (header->n_targets); i++)  
@@ -1478,31 +1482,139 @@ int main(int argc, char *argv[])
 
 
 
-
-
-			string  OutSSiteFile=PrefixO+".SiteDepth.gz";
-			ogzstream  OUTFA (OutSSiteFile.c_str());
-			for(int i = 0; i < (header->n_targets); i++)
+			if (paraFA04->SiteOutPut)
 			{
-				int CC=(header->target_len[i]);
-				MergerIt=RegionMerger.find(i);
-				if (MergerIt==RegionMerger.end())
+				string  OutSSiteFile=PrefixO+".SiteDepth.gz";
+				ogzstream  OUTFA (OutSSiteFile.c_str());
+				for(int i = 0; i < (header->n_targets); i++)
 				{
-					CC=100;
-					continue ;
+					int CC=(header->target_len[i]);
+					MergerIt=RegionMerger.find(i);
+					if (MergerIt==RegionMerger.end())
+					{
+						CC=100;
+						continue ;
+					}
+					string ChrName=header->target_name[i];
+					for (int32_t j =0 ; j< CC ; j++)
+					{
+						OUTFA<<ChrName<<"\t"<<j<<"\t"<<depth[i][j].Depth<<"\n";
+					}
 				}
-//								CC=1000;
-				string ChrName=header->target_name[i];
-				for (int32_t j =0 ; j< CC ; j++)
+				OUTFA.close() ;
+			}
+
+
+
+
+
+			if (   (paraFA04->InInt2)==6 )
+			{
+				ubit64_t  SS_Len =0;
+				ubit64_t  SS_Cov=0;
+				ubit64_t  SS_TotalD=0;
+				if (RefIn)
 				{
-					OUTFA<<ChrName<<"\t"<<j<<"\t"<<depth[i][j].Depth<<"\n";
+					OUT<<OutHeader;
+					ubit64_t SS_GCGC =0;
+					for(int i = 0; i < (header->n_targets); i++)  
+					{
+						int CC=(header->target_len[i]);
+						MergerIt=RegionMerger.find(i);
+						if (MergerIt==RegionMerger.end())
+						{
+							CC=100;
+							continue ;
+						}
+						string ChrName=header->target_name[i];
+						int Start ; int End;
+						int GeneLength ; int GeneCover ; int GeneDepth=0;
+						int GeneGCGC=0;
+
+						for (int32_t j =1 ; j< CC ; j+=((paraFA04->WinSize)))
+						{
+
+							Start=j-1; End=Start+(paraFA04->WinSize);
+							if (End>CC ) {End=CC;}
+							GeneCover=0;GeneDepth=0;GeneGCGC=0;
+
+							for ( ;Start<End ; Start++)
+							{
+								if (depth[i][Start].Depth >0 )
+								{
+									GeneCover++;
+									GeneDepth+=(depth[i][Start].Depth);
+								}
+								GeneGCGC+=GCGCArry[(RefBase[i])[Start]];
+							}
+							GeneLength=End-j+1;
+							double Coverage=(GeneCover)*100.0/(GeneLength);
+							double MeanDepth=(GeneDepth)*1.0/(GeneLength);
+							double GeneGC=(GeneGCGC)*100.0/(GeneLength);
+							OUT<<ChrName<<"\t"<<j<<"\t"<<End<<"\t"<<GeneLength<<"\t"<<GeneCover<<"\t"<<(GeneDepth)<<"\t"<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<GeneGC<<"\t"<<Coverage<<"\t"<<MeanDepth<<"\n";
+
+							SS_Cov+=(GeneCover);
+							SS_Len+=(GeneLength);
+							SS_GCGC+=(GeneGCGC);
+							SS_TotalD+=(GeneDepth);
+						}
+					}
+					double Coverage=SS_Cov*100.0/SS_Len;
+					double MeanDepth=SS_TotalD*1.0/SS_Len;
+					double ALLGeneGCRation=SS_GCGC*100.0/SS_Len;
+
+					OUT<<"##RegionLength: "<<SS_Len<<"\tCoveredSite: "<<SS_Cov<<"\tGC(%): "<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<ALLGeneGCRation<<"\tCoverage(%): "<<Coverage<<"\tMeanDepth: "<<MeanDepth<<endl;
+
+
+				}
+				else
+				{
+
+					OUT<<OutHeader;
+					for(int i = 0; i < (header->n_targets); i++)  
+					{
+						int CC=(header->target_len[i]);
+						MergerIt=RegionMerger.find(i);
+						if (MergerIt==RegionMerger.end())
+						{
+							CC=100;
+							continue ;
+						}
+						string ChrName=header->target_name[i];
+						int Start ; int End;
+						int GeneLength ; int GeneCover ; int GeneDepth=0;
+
+						for (int32_t j =1 ; j< CC ; j+=((paraFA04->WinSize)))
+						{
+
+							Start=j-1; End=Start+(paraFA04->WinSize);
+							if (End>CC ) {End=CC;}
+							GeneCover=0;GeneDepth=0;
+
+							for ( ;Start<End ; Start++)
+							{
+								if (depth[i][Start].Depth >0 )
+								{
+									GeneCover++;
+									GeneDepth+=(depth[i][Start].Depth);
+								}
+							}
+							GeneLength=End-j+1;
+							double Coverage=(GeneCover)*100.0/(GeneLength);
+							double MeanDepth=(GeneDepth)*1.0/(GeneLength);
+							OUT<<ChrName<<"\t"<<j<<"\t"<<End<<"\t"<<GeneLength<<"\t"<<GeneCover<<"\t"<<(GeneDepth)<<"\t"<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<Coverage<<"\t"<<MeanDepth<<"\n";
+
+							SS_Cov+=(GeneCover);
+							SS_Len+=(GeneLength);
+							SS_TotalD+=(GeneDepth);
+						}
+					}
+					double Coverage=SS_Cov*100.0/SS_Len;
+					double MeanDepth=SS_TotalD*1.0/SS_Len;
+
+					OUT<<"##RegionLength: "<<SS_Len<<"\tCoveredSite: "<<SS_Cov<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<"\tCoverage(%): "<<Coverage<<"\tMeanDepth: "<<MeanDepth<<endl;
 				}
 			}
-			OUTFA.close() ;
-
-
-
-
 
 
 
@@ -1689,7 +1801,7 @@ int main(int argc, char *argv[])
 			hts_set_opt(BamInRR, CRAM_OPT_REQUIRED_FIELDS, SAM_FLAG | SAM_RNAME | SAM_POS | SAM_MAPQ | SAM_CIGAR);
 
 		}
-		//
+
 		headerRR = sam_hdr_read(BamInRR);
 
 		cout <<"Warning: Cannot find index file of input BAM/CRAM. PanDepth will run in No Index mode: "<<BamPath<<endl;
@@ -1794,7 +1906,6 @@ int main(int argc, char *argv[])
 					CC=100;
 					continue ;
 				}
-//								CC=1000;
 				string ChrName=header->target_name[i];
 				for (int32_t j =0 ; j< CC ; j++)
 				{
@@ -1803,6 +1914,118 @@ int main(int argc, char *argv[])
 			}
 			OUTFA.close() ;
 		}
+
+
+			if (   (paraFA04->InInt2)==6 )
+			{
+				ubit64_t  SS_Len =0;
+				ubit64_t  SS_Cov=0;
+				ubit64_t  SS_TotalD=0;
+				if (RefIn)
+				{
+					OUT<<OutHeader;
+					ubit64_t SS_GCGC =0;
+					for(int i = 0; i < (header->n_targets); i++)  
+					{
+						int CC=(header->target_len[i]);
+						MergerIt=RegionMerger.find(i);
+						if (MergerIt==RegionMerger.end())
+						{
+							CC=100;
+							continue ;
+						}
+						string ChrName=header->target_name[i];
+						int Start ; int End;
+						int GeneLength ; int GeneCover ; int GeneDepth=0;
+						int GeneGCGC=0;
+
+						for (int32_t j =1 ; j< CC ; j+=((paraFA04->WinSize)))
+						{
+
+							Start=j-1; End=Start+(paraFA04->WinSize);
+							if (End>CC ) {End=CC;}
+							GeneCover=0;GeneDepth=0;GeneGCGC=0;
+
+							for ( ;Start<End ; Start++)
+							{
+								if (depth[i][Start].Depth >0 )
+								{
+									GeneCover++;
+									GeneDepth+=(depth[i][Start].Depth);
+								}
+								GeneGCGC+=GCGCArry[(RefBase[i])[Start]];
+							}
+							GeneLength=End-j+1;
+							double Coverage=(GeneCover)*100.0/(GeneLength);
+							double MeanDepth=(GeneDepth)*1.0/(GeneLength);
+							double GeneGC=(GeneGCGC)*100.0/(GeneLength);
+							OUT<<ChrName<<"\t"<<j<<"\t"<<End<<"\t"<<GeneLength<<"\t"<<GeneCover<<"\t"<<(GeneDepth)<<"\t"<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<GeneGC<<"\t"<<Coverage<<"\t"<<MeanDepth<<"\n";
+
+							SS_Cov+=(GeneCover);
+							SS_Len+=(GeneLength);
+							SS_GCGC+=(GeneGCGC);
+							SS_TotalD+=(GeneDepth);
+						}
+					}
+					double Coverage=SS_Cov*100.0/SS_Len;
+					double MeanDepth=SS_TotalD*1.0/SS_Len;
+					double ALLGeneGCRation=SS_GCGC*100.0/SS_Len;
+
+					OUT<<"##RegionLength: "<<SS_Len<<"\tCoveredSite: "<<SS_Cov<<"\tGC(%): "<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<ALLGeneGCRation<<"\tCoverage(%): "<<Coverage<<"\tMeanDepth: "<<MeanDepth<<endl;
+
+
+				}
+				else
+				{
+
+					OUT<<OutHeader;
+					for(int i = 0; i < (header->n_targets); i++)  
+					{
+						int CC=(header->target_len[i]);
+						MergerIt=RegionMerger.find(i);
+						if (MergerIt==RegionMerger.end())
+						{
+							CC=100;
+							continue ;
+						}
+						string ChrName=header->target_name[i];
+						int Start ; int End;
+						int GeneLength ; int GeneCover ; int GeneDepth=0;
+
+						for (int32_t j =1 ; j< CC ; j+=((paraFA04->WinSize)))
+						{
+
+							Start=j-1; End=Start+(paraFA04->WinSize);
+							if (End>CC ) {End=CC;}
+							GeneCover=0;GeneDepth=0;
+
+							for ( ;Start<End ; Start++)
+							{
+								if (depth[i][Start].Depth >0 )
+								{
+									GeneCover++;
+									GeneDepth+=(depth[i][Start].Depth);
+								}
+							}
+							GeneLength=End-j+1;
+							double Coverage=(GeneCover)*100.0/(GeneLength);
+							double MeanDepth=(GeneDepth)*1.0/(GeneLength);
+							OUT<<ChrName<<"\t"<<j<<"\t"<<End<<"\t"<<GeneLength<<"\t"<<GeneCover<<"\t"<<(GeneDepth)<<"\t"<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<Coverage<<"\t"<<MeanDepth<<"\n";
+
+							SS_Cov+=(GeneCover);
+							SS_Len+=(GeneLength);
+							SS_TotalD+=(GeneDepth);
+						}
+					}
+					double Coverage=SS_Cov*100.0/SS_Len;
+					double MeanDepth=SS_TotalD*1.0/SS_Len;
+
+					OUT<<"##RegionLength: "<<SS_Len<<"\tCoveredSite: "<<SS_Cov<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<"\tCoverage(%): "<<Coverage<<"\tMeanDepth: "<<MeanDepth<<endl;
+				}
+			}
+
+
+
 
 
 
@@ -1821,7 +2044,7 @@ int main(int argc, char *argv[])
 	ubit64_t  SS_Cov=0;
 	ubit64_t  SS_TotalD=0;
 
-	if (RefIn)
+	if ((RefIn)  &&  ((paraFA04->InInt2)!=6))
 	{
 		OUT<<OutHeader;
 		ubit64_t  SS_GCGC=0;
@@ -1895,7 +2118,7 @@ int main(int argc, char *argv[])
 
 			}
 		}
-		else
+		else  if ((paraFA04->InInt2)==5)
 		{
 
 
@@ -1936,7 +2159,6 @@ int main(int argc, char *argv[])
 					OUT<<(SortResultIT->second) <<"\n";
 				}
 			}
-
 		}
 		double Coverage=SS_Cov*100.0/SS_Len;
 		double MeanDepth=SS_TotalD*1.0/SS_Len;
@@ -1945,7 +2167,7 @@ int main(int argc, char *argv[])
 		OUT<<"##RegionLength: "<<SS_Len<<"\tCoveredSite: "<<SS_Cov<<"\tGC(%): "<<setiosflags(ios::fixed)<<setiosflags(ios::right)<<setprecision(2)<<ALLGeneGCRation<<"\tCoverage(%): "<<Coverage<<"\tMeanDepth: "<<MeanDepth<<endl;
 
 	}
-	else
+	else if (((paraFA04->InInt2)!=6))
 	{
 		OUT<<OutHeader;
 		if  ((paraFA04->InInt2)==1 ||  (paraFA04->InInt2)==2   ||  (paraFA04->InInt2)==3   ||  (paraFA04->InInt2)==4 )
@@ -2017,7 +2239,7 @@ int main(int argc, char *argv[])
 
 			}
 		}
-		else
+		else if ((paraFA04->InInt2)==5)
 		{
 
 			for ( GeneDataIT=GeneData.begin();  GeneDataIT != GeneData.end(); ++GeneDataIT)
