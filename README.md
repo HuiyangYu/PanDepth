@@ -13,7 +13,7 @@ cd PanDepth-2.21-Linux-x86_64
 ```
 git clone https://github.com/HuiyangYu/PanDepth.git
 cd PanDepth
-sh install.sh
+make
 cd bin
 ./pandepth -h
 ```
