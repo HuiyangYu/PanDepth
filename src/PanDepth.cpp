@@ -57,7 +57,7 @@ typedef unsigned long long ubit64_t;
 void bamCov_help()
 {
 	cout<<""
-		"Usage: pandepth -i in.bam [-g gene.gff|-b region.bed] -o outPrefix\n"
+		"Usage: pandepth -i in.bam [-g gene.gff | -b region.bed] -o outPrefix\n"
 		" Input/Output options:\n"
 		"   -i    <str>     input of bam/cram file\n"
 		"   -o    <str>     prefix of output file\n"
@@ -1341,8 +1341,9 @@ int main(int argc, char *argv[])
 	}
 	// read index file
 	string bambai=BamPath+".bai";
+	string bamcsi=BamPath+".csi";
 	string crambai=BamPath+".crai";
-	if ( ( ( access(bambai.c_str(), 0) == 0 )  ||  (access(crambai.c_str(), 0) == 0 )  )  && (paraFA04->TF ) )	
+	if ( ( ( access(bambai.c_str(), 0) == 0 )  ||  (access(crambai.c_str(), 0) == 0 )   ||   (access(bamcsi.c_str(), 0) == 0 )   )  && (paraFA04->TF ) )	
 	{
 
 		if((paraFA04->SiteOutPut)  ||  ((paraFA04->InInt2)==6)  )
