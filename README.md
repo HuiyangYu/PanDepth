@@ -121,11 +121,11 @@ The statistical results of PanDepth on depth and coverage are completely consist
 ### 7.1 Can PanDepth analyze alignment files from long reads, such as HIFI reads?
 PanDepth supports both short reads and long reads of types HIFI/CLR/ONT.
 
-### 7.2 Can PanDepth analyze alignment files in CRAM format?
+### 7.2 Can PanDepth analyze alignment files in SAM format?
 PanDepth supports alignment files in SAM, BAM, and CRAM formats.
 
 ### 7.3 Does PanDepth require index files for the corresponding alignment files during the analysis process?
-If you provide a BAM or CRAM file, sorting and indexing are not necessary. However, if you have sorted BAM or CRAM files along with their corresponding index files, PanDepth can utilize multi-threading to accelerate the computation.<br>
+If you provide a BAM or CRAM file, sorting and indexing are not necessary. However, if you have sorted BAM or CRAM files along with their corresponding index files, PanDepth can utilize multi-threading to accelerate the computation.<br>PanDepth's single-threaded computation is also extremely fast. <br>
 
 If your alignment files are intended solely for coverage and depth statistics, especially for assessing the quality of assembled genomes, we recommend avoiding sorting during the generation of BAM or CRAM files. This is because sorting large alignment files using tools like samtools sort can be extremely time-consuming.
 ## 8. License
