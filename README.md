@@ -129,7 +129,7 @@ If you provide a BAM or CRAM file, sorting and indexing are not necessary. Howev
 
 PanDepth's single-threaded computation is also extremely fast. <br>
 
-If your alignment files are intended solely for coverage and depth statistics, especially for assessing the quality of assembled genomes, we recommend avoiding sorting during the generation of BAM or CRAM files. This is because sorting large alignment files using tools like samtools sort can be extremely time-consuming.
+If your alignment files are intended solely for coverage and depth statistics, especially for assessing the quality of assembled genomes, we recommend avoiding sorting during the generation of BAM or CRAM files. This is because sorting large alignment files using tools like 'samtools sort' can be extremely time-consuming.
 ## 8. License
 -------
 
