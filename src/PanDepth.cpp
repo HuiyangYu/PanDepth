@@ -48,11 +48,8 @@
 #include "./cram.h"
 #include "./kseq.h"
 
-
 using namespace std;
 typedef unsigned long long ubit64_t;
-//KSEQ_INIT(gzFile, gzread)
-
 
 void bamCov_help()
 {
@@ -267,8 +264,6 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 	return 1 ;
 }
 
-
-//
 void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat ,int MeMStart, int MeMEnd ,int ShiftPosition)
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
@@ -296,29 +291,6 @@ void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneSt
 	}
 }
 
-/*
-   void  StatChrDepth ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat)
-   {
-   for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
-   {
-   int Size=(iter->second).CDSList.size();
-   for (int tt=0  ; tt< Size ; tt++)
-   {
-   int ii=(iter->second).CDSList[tt].first-1;
-   int End=(iter->second).CDSList[tt].second ;
-   for (  ; ii<End ; ii++)
-   {
-   if ( depth[ii]>0 )
-   {
-   (iter->second).GeneCover++;
-   (iter->second).GeneDepth+=depth[ii];
-   }
-   }
-   }
-   }
-   }
-   */
-
 void  StatChrDepthLowMEM (  SiteInfo  * depth  ,  map <string,GeneInfo>  &  GeneStat)
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
@@ -340,17 +312,12 @@ void  StatChrDepthLowMEM (  SiteInfo  * depth  ,  map <string,GeneInfo>  &  Gene
 	}
 }
 
-//
-
-
-
 void ProDealChrBambaiOUTSite ( string  & BamPath , In3str1v * paraFA04 , SiteInfo **  depth , map <int,map <int,int> >  & RegionMerger ,  vector <int> &  ChrNumVer , map <int,map <string,GeneInfo> > & GeneData , int &  numThreads )
 {
 
 	htsFile *fphts;
 	sam_hdr_t *headerAA;
 	int64_t rcnt;
-
 
 	int n=1;
 	int i=0;
@@ -397,8 +364,6 @@ void ProDealChrBambaiOUTSite ( string  & BamPath , In3str1v * paraFA04 , SiteInf
 	int AAA=ChrNumVer.size();
 	map <int,map <int,int> > :: iterator  RegionIt ;
 	map <int,int> :: iterator MapSSEE;
-	//	map <int,int> :: iterator MapSSEEV2;
-
 
 	for (int po=0; po<AAA ; po++)
 	{
