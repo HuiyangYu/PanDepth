@@ -71,7 +71,7 @@ void bamCov_help()
 		"   -t    <int>     number of threads [3]\n"
 		"   -r    <str>     reference genome file for cram decode or GC parse\n"
 		"   -c              enable the calculation of GC content (requires -r)\n"
-		"   -h              show this help [v2.21]\n"
+		"   -h              show this help [v2.22]\n"
 		"\n";
 }
 
