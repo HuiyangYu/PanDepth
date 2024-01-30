@@ -90,6 +90,7 @@ Chr01	30403	30532	Chr01_30403_30532	130	130	7786	100.00	59.89
 Chr01	30805	30840	Chr01_30805_30840	36	36	2231	100.00	61.97
 Chr01	66931	67440	Chr01_66931_67440	510	510	23804	100.00	46.67
 ```
+The 'RegionID' is automatically generated in the output results and does not need to exist in the input BED file. The BED file only needs three columns, namely Chr/Contig, Start, and End.
 ### 3.4 Perform coverage analysis for specific window size (100 bp)
 ```
 pandepth -i test.bam -w 100 -o test4
