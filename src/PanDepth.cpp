@@ -507,10 +507,10 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 	map <int,int> :: iterator MapSSEEV2 ;
 
 	//int  MeMBinWindows=int (ChrLen/40) ; 
-	int  MeMBinWindows=10000000; 
+	int  MeMBinWindows=5000000; 
 	//if  (MeMBinWindows<20000000) {MeMBinWindows=20000000;}
 	//int  MeMBinWindowsEdge=int(MeMBinWindows/10);
-	int  MeMBinWindowsEdge=10000000;
+	int  MeMBinWindowsEdge=5000000;
 
 	for (int po=0; po<AAA ; po++)
 	{
@@ -1162,7 +1162,7 @@ int main(int argc, char *argv[])
 	if (RegionMerger.empty())
 	{
 		//MeMBinWindows
-		int  MeMBinWindows=10000000;
+		int  MeMBinWindows=5000000;
 		if ((paraFA04->WinSize) ==0 )
 		{
 			cout<<"Warning: GFF/GTF or BED was not provided, the total chromosome length will be used as the parsing region.\n";
