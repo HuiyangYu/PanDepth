@@ -124,7 +124,7 @@ PanDepth supports both short reads and long reads of types HIFI/CLR/ONT.
 ### 7.2 Can PanDepth analyze alignment files in SAM or PAF format?
 PanDepth supports alignment files in SAM, BAM, CRAM, PAF formats. Additionally, PAF files can be compressed with 'gz' extension. However, in the PAF format alignment files, it is required to include the CIGAR tag. If you perform the alignment using minimap2 or winnowmap, you can add this tag using the '-c' parameter.
 ### 7.3 Does the '-x' parameter still function when the input file is in PAF format?
-When the input file is in PAF format, PanDepth will check if the filtering flag specified by '-x' contains the '0x100' flag. If these flags are present in the alignments, the corresponding alignment regions will be filtered out.
+When the input file is in PAF format, PanDepth will check if the filtering flag specified by '-x' contains the '0x100' flag (secondary alignment). If these flags are present in the alignments, the corresponding alignment regions will be filtered out.
 ### 7.4 Does PanDepth support statistical analysis of genome-to-genome alignments?
 PanDepth supports statistical analysis of genome-to-genome alignments, but the input file needs to be in PAF format with the CIGAR tag included.
 ### 7.5 Does PanDepth require index files for the corresponding alignment files during the analysis process?
