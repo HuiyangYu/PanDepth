@@ -4,9 +4,9 @@
 ##  1. Install
 ### (1) Pre-built binaries for x86_64 Linux
 ```
-wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.21/PanDepth-2.21-Linux-x86_64.tar.gz
-tar zvxf PanDepth-2.21-Linux-x86_64.tar.gz
-cd PanDepth-2.21-Linux-x86_64
+wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.22/PanDepth-2.22-Linux-x86_64.tar.gz
+tar zvxf PanDepth-2.22-Linux-x86_64.tar.gz
+cd PanDepth-2.22-Linux-x86_64
 ./pandepth -h
 ```
 ### (2) Building from source
@@ -21,7 +21,7 @@ cd bin
 ```
 Usage: pandepth -i in.bam [-g gene.gff | -b region.bed] -o outPrefix
  Input/Output options:
-   -i    <str>     input of bam/cram file
+   -i    <str>     input of sam/bam/cram/paf file
    -o    <str>     prefix of output file
  Target options:
    -g    <str>     input gff/gtf file for gene region
@@ -36,7 +36,7 @@ Usage: pandepth -i in.bam [-g gene.gff | -b region.bed] -o outPrefix
    -t    <int>     number of threads [3]
    -r    <str>     reference genome file for cram decode or GC parse
    -c              enable the calculation of GC content (requires -r)
-   -h              show this help [v2.21]
+   -h              show this help [v2.22]
 ```
 ## 3. Example
 ### 3.1 Perform coverage analysis for each chromosome
@@ -120,12 +120,13 @@ The memory requirements comparison of seven tools for calculating coverage using
 The statistical results of PanDepth on depth and coverage are completely consistent with samtools depth (version >=1.10).
 ## 7. FAQ
 ### 7.1 Can PanDepth analyze alignment files from long reads, such as HIFI reads?
-PanDepth supports both short reads and long reads of types HIFI/CLR/ONT.
+PanDepth supports both short reads and long reads of types HIFI/CLR/ONT. 
+### 7.2 Can PanDepth analyze alignment files in SAM or PAF format?
+PanDepth supports alignment files in SAM, BAM, CRAM, PAF formats. Additionally, PAF files can be compressed with 'gz' extension. However, in the PAF format alignment files, it is required to include the CIGAR tag. If you perform the alignment using minimap2 or winnowmap, you can add this tag using the '-c' parameter.
+### 7.3 Does the '-x' parameter still function when the input file is in PAF format?
+When the input file is in PAF format, PanDepth will check if the filtering flag specified by '-x' contains the '0x100' flag. If these flags are present in the alignments, the corresponding alignment regions will be filtered out.
 
-### 7.2 Can PanDepth analyze alignment files in SAM format?
-PanDepth supports alignment files in SAM, BAM, and CRAM formats.
-
-### 7.3 Does PanDepth require index files for the corresponding alignment files during the analysis process?
+### 7.4 Does PanDepth require index files for the corresponding alignment files during the analysis process?
 If you provide a BAM or CRAM file, sorting and indexing are not necessary. However, if you have sorted BAM or CRAM files along with their corresponding index files, PanDepth can utilize multi-threading to accelerate the computation.<br>
 
 PanDepth's single-threaded computation is also extremely fast. <br>
