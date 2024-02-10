@@ -134,7 +134,7 @@ PanDepth's single-threaded computation is also extremely fast. <br>
 
 If your alignment files are intended solely for coverage and depth statistics, especially for assessing the quality of assembled genomes, we recommend avoiding sorting during the generation of BAM or CRAM files. This is because sorting large alignment files using tools like 'samtools sort' can be extremely time-consuming.
 ### 7.6 How to set the '-x' parameter to filter reads?
-In PanDepth, the '-x' parameter is set to 1796 by default, which filters out reads with flags indicating unmapped, secondary alignment, not passing quality controls, PCR or optical duplicate. This default filtering is consistent with that of 'samtools depth'.
+In PanDepth, the '-x' parameter is set to 1796 by default, which filters out reads with flags indicating unmapped, secondary alignment, not passing quality controls, PCR or optical duplicate. This default filtering is consistent with that of 'samtools depth'.<br>
 If you wish to apply other types of filtering, you can select specific filters on this webpage (https://broadinstitute.github.io/picard/explain-flags.html) and pass the generated value after 'SAM Flag:' to the '-x' option.
  ## 8. License
 -------
