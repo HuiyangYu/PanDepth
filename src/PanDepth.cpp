@@ -98,7 +98,7 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 			string ext =A.substr(A.rfind('.') ==string::npos ? A.length() : A.rfind('.') + 1);
 			if ((ext == "list")  ||  (ext == "List" ))
 			{
-				ReadList (A ,Infile_count ,(paraFA04->InStr1List) ) ;
+				ReadList(A, Infile_count ,(paraFA04->InStr1List) ) ;
 			}
 			else
 			{
@@ -228,7 +228,7 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 			return 0;
 		}
 	}
-	cerr<<Infile_count<<endl;
+	//cerr<<Infile_count<<endl;
 	if (Infile_count>0)
 	{
 		paraFA04->InStr1=(paraFA04->InStr1List)[0];
@@ -1350,7 +1350,7 @@ int paf_main(In3str1v *paraFA04 )
 		int  MeMBinWindows=10000000;
 		if ((paraFA04->WinSize) ==0 )
 		{
-			cout<<"Warning: GFF/GTF or BED was not provided, the total chromosome length will be used as the parsing region.\n";
+			//cout<<"Warning: GFF/GTF or BED was not provided, the total chromosome length will be used as the parsing region.\n";
 			(paraFA04->InInt2)=0;
 		}
 		else if ((paraFA04->WinSize) <150 )
@@ -2025,7 +2025,7 @@ int BamList_main(In3str1v *paraFA04 )
 		hts_set_opt(BamIn, CRAM_OPT_REQUIRED_FIELDS, SAM_FLAG | SAM_RNAME | SAM_POS | SAM_MAPQ | SAM_CIGAR);
 	}
 	//
-	int numThreads = 1;
+	int numThreads = (paraFA04->CPU);
 	hts_set_opt(BamIn, HTS_OPT_NTHREADS, numThreads);
 	header = sam_hdr_read(BamIn);
 
@@ -2514,7 +2514,7 @@ int BamList_main(In3str1v *paraFA04 )
 		int  MeMBinWindows=10000000;
 		if ((paraFA04->WinSize) ==0 )
 		{
-			cout<<"Warning: GFF/GTF or BED was not provided, the total chromosome length will be used as the parsing region.\n";
+			//cout<<"Warning: GFF/GTF or BED was not provided, the total chromosome length will be used as the parsing region.\n";
 			(paraFA04->InInt2)=0;
 		}
 		else if ((paraFA04->WinSize) <150 )
@@ -2797,29 +2797,9 @@ int BamList_main(In3str1v *paraFA04 )
 			}
 			ThreadsVector.clear();
 			delete [] BamThread ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		}
 		else
 		{
-
-
 			bam1_t *aln = bam_init1();
 			uint32_t *cigar;
 
@@ -2854,7 +2834,7 @@ int BamList_main(In3str1v *paraFA04 )
 
 			if (sortBam)
 			{
-				cout <<"Warning: Cannot find index file of input sort BAM/CRAM. PanDepth will run in No Index mode: "<<BamPath<<endl;
+				cout <<"Warning: PanDepth will run in No Index mode: "<<BamPath<<endl;
 				bool ALLEnd=false;
 				bool  *EndChr = new bool [(header->n_targets)];
 				map <int,int> :: iterator  *ArryIt = new map <int,int> :: iterator [(header->n_targets)];
@@ -3423,7 +3403,7 @@ int List_main( In3str1v *paraFA04  )
 	}
 	if ( (ext == "paf" ) ||  (ext == "PAF" ) )
 	{
-		cout <<"INFO: Run paf Format data "<<endl;
+		cout <<"INFO: Run PAF format data "<<endl;
 		paf_main( paraFA04 ) ;
 	}
 	else
@@ -3487,7 +3467,7 @@ int main(int argc, char *argv[])
 		hts_set_opt(BamIn, CRAM_OPT_REQUIRED_FIELDS, SAM_FLAG | SAM_RNAME | SAM_POS | SAM_MAPQ | SAM_CIGAR);
 	}
 	//
-	int numThreads = 1;
+	int numThreads = (paraFA04->CPU);
 	hts_set_opt(BamIn, HTS_OPT_NTHREADS, numThreads);
 	header = sam_hdr_read(BamIn);
 
@@ -3967,12 +3947,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
-
-
-
-
-
 	// check region
 	if (RegionMerger.empty())
 	{
@@ -3980,7 +3954,7 @@ int main(int argc, char *argv[])
 		int  MeMBinWindows=10000000;
 		if ((paraFA04->WinSize) ==0 )
 		{
-			cout<<"Warning: GFF/GTF or BED was not provided, the total chromosome length will be used as the parsing region.\n";
+			//cout<<"Warning: GFF/GTF or BED was not provided, the total chromosome length will be used as the parsing region.\n";
 			(paraFA04->InInt2)=0;
 		}
 		else if ((paraFA04->WinSize) <150 )
@@ -4605,7 +4579,7 @@ int main(int argc, char *argv[])
 
 		if (sortBam)
 		{
-			cout <<"Warning: Cannot find index file of input sort BAM/CRAM. PanDepth will run in No Index mode: "<<BamPath<<endl;
+			cout <<"Warning: PanDepth will run in No Index mode: "<<BamPath<<endl;
 			bool ALLEnd=false;
 			while (sam_read1(BamInRR, header, aln) >= 0)
 			{
@@ -4646,7 +4620,6 @@ int main(int argc, char *argv[])
 						}
 					}
 				}
-
 
 				cigar = bam_get_cigar(aln);
 				int  endTmp ;
