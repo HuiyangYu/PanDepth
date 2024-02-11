@@ -4,9 +4,9 @@
 ##  1. Install
 ### (1) Pre-built binaries for x86_64 Linux
 ```
-wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.22/PanDepth-2.22-Linux-x86_64.tar.gz
-tar zvxf PanDepth-2.22-Linux-x86_64.tar.gz
-cd PanDepth-2.22-Linux-x86_64
+wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.23/PanDepth-2.23-Linux-x86_64.tar.gz
+tar zvxf PanDepth-2.23-Linux-x86_64.tar.gz
+cd PanDepth-2.23-Linux-x86_64
 ./pandepth -h
 ```
 ### (2) Building from source
@@ -21,7 +21,7 @@ cd bin
 ```
 Usage: pandepth -i in.bam [-g gene.gff | -b region.bed] -o outPrefix
  Input/Output options:
-   -i    <str>     input of sam/bam/cram/paf file
+   -i    <str>     input of sam/bam/cram/paf or #.list file
    -o    <str>     prefix of output file
  Target options:
    -g    <str>     input gff/gtf file for gene region
@@ -36,7 +36,7 @@ Usage: pandepth -i in.bam [-g gene.gff | -b region.bed] -o outPrefix
    -t    <int>     number of threads [3]
    -r    <str>     reference genome file for cram decode or GC parse
    -c              enable the calculation of GC content (requires -r)
-   -h              show this help [v2.22]
+   -h              show this help [v2.23]
 ```
 ## 3. Example
 ### 3.1 Perform coverage analysis for each chromosome
