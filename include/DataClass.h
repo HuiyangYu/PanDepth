@@ -31,6 +31,7 @@ class In3str1v {
 		uint32_t flags ;
 		int WinSize;
 		string InStr1 ;
+		vector <string> InStr1List ;
 		string InStr2 ;
 		string InStr3 ;
 		string CDS ;
