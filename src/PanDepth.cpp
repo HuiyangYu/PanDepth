@@ -47,6 +47,11 @@
 #include "./hts.h"
 #include "./cram.h"
 #include "./kseq.h"
+#ifdef _WIN32
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 using namespace std;
 typedef unsigned long long ubit64_t;
