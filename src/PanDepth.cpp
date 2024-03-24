@@ -76,7 +76,7 @@ void bamCov_help()
 		"   -t    <int>     number of threads [3]\n"
 		"   -r    <str>     reference genome file for cram decode or GC parse\n"
 		"   -c              enable the calculation of GC content (requires -r)\n"
-		"   -h              show this help [v2.23]\n"
+		"   -h              show this help [v2.24]\n"
 		"\n";
 }
 
@@ -286,9 +286,9 @@ void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneSt
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
 	{
-		if ( (iter->second).GeneStart >=MeMEnd ) { continue;}
-		if ( (iter->second).GeneEnd <=MeMStart ) { continue;}
 
+		if ( (iter->second).GeneStart >MeMEnd ) { continue;}
+		if ( (iter->second).GeneEnd <MeMStart ) { continue;}
 		int Size=(iter->second).CDSList.size();
 		for (int tt=0  ; tt< Size ; tt++)
 		{
@@ -401,11 +401,12 @@ void ProDealChrBambaiOUTSite ( string  & BamPath , In3str1v * paraFA04 , SiteInf
 
 		for(  ; MapSSEE!=(RegionIt->second).end() ; MapSSEE++)
 		{
-			long beg=(MapSSEE->first);
+			long beg=(MapSSEE->first)-1;
 			if  (beg<1) {beg=1;}
-			long end=(MapSSEE->second);
+			long end=(MapSSEE->second)+1;
 			if (end>ChrLen) {end=ChrLen;}
 			RegionArry[CountRegion++] = CharMap;
+			//cerr<<ChrName<<"\t"<<beg<<"\t"<<endl;
 			CharMap += (sprintf(CharMap, "%s:%lu-%lu", ChrName.c_str(), beg, end)+1);
 		}
 		rcnt = CountRegion;
@@ -537,9 +538,9 @@ void ProDealChrBambaiALLSite ( string  & BamPath , In3str1v * paraFA04 , SiteInf
 
 		for(  ; MapSSEE!=(RegionIt->second).end() ; MapSSEE++)
 		{
-			long beg=(MapSSEE->first);
+			long beg=(MapSSEE->first)-1;
 			if  (beg<1) {beg=1;}
-			long end=(MapSSEE->second);
+			long end=(MapSSEE->second)+1;
 			if (end>ChrLen) {end=ChrLen;}
 			RegionArry[CountRegion++] = CharMap;
 			CharMap += (sprintf(CharMap, "%s:%lu-%lu", ChrName.c_str(), beg, end)+1);
@@ -684,6 +685,7 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 			long end=(MapSSEE->second)+1;
 			if (end>ChrLen) {end=ChrLen;}
 			RegionArry[CountRegion++] = CharMap;
+			//cerr<<ChrName<<"\t"<<beg<<"\t"<<end<<"\n";
 			CharMap += (sprintf(CharMap, "%s:%lu-%lu", ChrName.c_str(), beg, end)+1);
 
 			MapSSEEV2=MapSSEE;
@@ -706,7 +708,6 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 				rcnt = CountRegion;
 				iter = sam_itr_regarray(idx, headerAA, RegionArry, rcnt);
 
-				//				cerr<<ChrName<<"\thewm\t"<<MeMStart<<"\t"<<MeMEnd<<"\t"<<"\t"<<ShiftPosition<<"\t"<<CountRegion<<endl;
 
 
 				while ((ret = sam_itr_next(fphts, iter, aln)) >= 0)
@@ -717,6 +718,7 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 					cigar = bam_get_cigar(aln);
 					int32_t StartRead=((aln->core).pos)-ShiftPosition;
 					int32_t endTmp;
+			//		cerr<<(aln->core).pos<<"\the"<<endl;
 					for(int i=0; i < aln->core.n_cigar;++i)
 					{
 						int cig=bam_cigar_op(cigar[i]);
