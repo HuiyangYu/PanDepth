@@ -108,45 +108,46 @@ Chr01	601	700	100	100	679	100.00	6.79
 Chr01	701	800	100	33	93	33.00	0.93
 Chr01	801	900	100	0	0	0.00	0.00
 ```
-## 4. Speed
-### 4.1 genome coverage
+## 4. Performance evaluation
+The species used for software performance evaluation is Capsicum annuum, with a genome size of 3 Gb, 33688 genes, and 175274 exons. The software versions employed are as follows: Samtools (v1.16.1), BEDTools (v2.31.0), Sambamba (v1.0.0), Mosdepth (v0.3.5), Megadepth (v1.2.0), BamToCov (v2.7.0), and PanDepth (v2.19). All evaluations were conducted on nodes equipped with 52 cores and 192 GB of memory, repeated 10 times, utilizing the SLURM job scheduling system.
+### 4.1 Speed
+#### 4.1.1 genome coverage
 
 ![正文图片-ringh-new_fig2](https://github.com/HuiyangYu/PanDepth/assets/41780741/2956ff31-8638-49c0-b71b-d523a71badb2)
 The computation time comparison of seven tools for calculating genome coverage using different numbers of threads with 150 Gb of sequencing reads.
-### 4.2 exon coverage
+#### 4.1.2 exon coverage
 ![正文图片-ringh-new_fig3](https://github.com/HuiyangYu/PanDepth/assets/41780741/afe33021-3d09-40c5-875b-e3e79b6bd392)
 The computation time comparison of seven tools for calculating exon coverage using different numbers of threads with 150 Gb of sequencing reads.
 
-## 5. Memory
-### 5.1 genome coverage
+### 4.2 Memory
+#### 4.2.1 genome coverage
 ![正文图片-ringh-new_fig4](https://github.com/HuiyangYu/PanDepth/assets/41780741/1c8b07ea-cc79-4116-b256-7f8714d1fcc4)
 The memory requirements comparison of seven tools for calculating genome coverage using different numbers of threads with 150 Gb of sequencing reads.
-### 5.2 exon coverage
+#### 4.2.2 exon coverage
 ![正文图片-ringh-new_fig5](https://github.com/HuiyangYu/PanDepth/assets/41780741/314268c2-e2d9-4b03-b87f-f7e86f9b0078)
 The memory requirements comparison of seven tools for calculating exon coverage using different numbers of threads with 150 Gb of sequencing reads.
-
-## 6. Accuracy
+### 4.3 Accuracy
 The statistical results of PanDepth on depth and coverage are completely consistent with samtools depth (version >=1.10).
-## 7. FAQ
-### 7.1 Can PanDepth analyze alignment files from long reads, such as HIFI reads?
+## 5. FAQ
+### 5.1 Can PanDepth analyze alignment files from long reads, such as HIFI reads?
 PanDepth supports both short reads and long reads of types HIFI/CLR/ONT. 
-### 7.2 Can PanDepth analyze alignment files in SAM or PAF format?
+### 5.2 Can PanDepth analyze alignment files in SAM or PAF format?
 PanDepth supports alignment files in SAM, BAM, CRAM, PAF formats. Additionally, PAF files can be compressed with 'gz' extension. However, in the PAF format alignment files, it is required to include the CIGAR tag. If you perform the alignment using minimap2 or winnowmap, you can add this tag using the '-c' parameter.
-### 7.3 Does the '-x' parameter still function when the input file is in PAF format?
+### 5.3 Does the '-x' parameter still function when the input file is in PAF format?
 When the input file is in PAF format, PanDepth will check if the filtering flag specified by '-x' contains the '0x100' flag (secondary alignment). If these flags are present in the alignments, the corresponding alignment regions will be filtered out.
-### 7.4 Does PanDepth support statistical analysis of genome-to-genome alignments?
+### 5.4 Does PanDepth support statistical analysis of genome-to-genome alignments?
 PanDepth supports statistical analysis of genome-to-genome alignments, but the input file needs to be in PAF format with the CIGAR tag included.
-### 7.5 Does PanDepth require index files for the corresponding alignment files during the analysis process?
+### 5.5 Does PanDepth require index files for the corresponding alignment files during the analysis process?
 If you provide a BAM or CRAM file, sorting and indexing are not necessary. However, if you have sorted BAM or CRAM files along with their corresponding index files, PanDepth can utilize multi-threading to accelerate the computation.<br>
 
 PanDepth's single-threaded computation is also extremely fast. <br>
 
 If your alignment files are intended solely for coverage and depth statistics, especially for assessing the quality of assembled genomes, we recommend avoiding sorting during the generation of BAM or CRAM files. This is because sorting large alignment files using tools like 'samtools sort' can be extremely time-consuming.
-### 7.6 How to set the '-x' parameter to filter reads?
+### 5.6 How to set the '-x' parameter to filter reads?
 In PanDepth, the '-x' parameter is set to 1796 by default, which filters out reads with flags indicating unmapped, secondary alignment, not passing quality controls, PCR or optical duplicate. This default filtering is consistent with that of 'samtools depth'.<br>
 
 If you wish to apply other types of filtering, you can select specific filters on this webpage (https://broadinstitute.github.io/picard/explain-flags.html) and pass the generated value after 'SAM Flag:' to the '-x' option.
- ## 8. License
+ ## 6. License
 -------
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
