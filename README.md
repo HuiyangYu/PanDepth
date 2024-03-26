@@ -109,12 +109,21 @@ Chr01	701	800	100	33	93	33.00	0.93
 Chr01	801	900	100	0	0	0.00	0.00
 ```
 ## 4. Speed
-The computation time comparison of seven tools for calculating coverage using different numbers of threads with 150 Gb of sequencing reads.
+### 4.1 genome coverage
+
 ![正文图片-ringh-new_fig2](https://github.com/HuiyangYu/PanDepth/assets/41780741/2956ff31-8638-49c0-b71b-d523a71badb2)
+The computation time comparison of seven tools for calculating genome coverage using different numbers of threads with 150 Gb of sequencing reads.
+### 4.2 exon coverage
+![正文图片-ringh-new_fig3](https://github.com/HuiyangYu/PanDepth/assets/41780741/afe33021-3d09-40c5-875b-e3e79b6bd392)
+The computation time comparison of seven tools for calculating exon coverage using different numbers of threads with 150 Gb of sequencing reads.
 
 ## 5. Memory
-The memory requirements comparison of seven tools for calculating coverage using different numbers of threads with 150 Gb of sequencing reads.
+### 5.1 genome coverage
 ![正文图片-ringh-new_fig4](https://github.com/HuiyangYu/PanDepth/assets/41780741/1c8b07ea-cc79-4116-b256-7f8714d1fcc4)
+The memory requirements comparison of seven tools for calculating genome coverage using different numbers of threads with 150 Gb of sequencing reads.
+### 5.2 exon coverage
+![正文图片-ringh-new_fig5](https://github.com/HuiyangYu/PanDepth/assets/41780741/314268c2-e2d9-4b03-b87f-f7e86f9b0078)
+The memory requirements comparison of seven tools for calculating exon coverage using different numbers of threads with 150 Gb of sequencing reads.
 
 ## 6. Accuracy
 The statistical results of PanDepth on depth and coverage are completely consistent with samtools depth (version >=1.10).
