@@ -148,7 +148,10 @@ If your alignment files are intended solely for coverage and depth statistics, e
 In PanDepth, the '-x' parameter is set to 1796 by default, which filters out reads with flags indicating unmapped, secondary alignment, not passing quality controls, PCR or optical duplicate. This default filtering is consistent with that of 'samtools depth'.<br>
 
 If you wish to apply other types of filtering, you can select specific filters on this webpage (https://broadinstitute.github.io/picard/explain-flags.html) and pass the generated value after 'SAM Flag:' to the '-x' option.
- ## 6. License
+ ## 6. Discussing
+ E-mail: yuhuiyang1234@126.com <br>
+ QQ group: 125293663
+ ## 7. License
 -------
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
