@@ -1,7 +1,10 @@
 # PanDepth
 <b>PanDepth, an ultrafast and efficient genomic tool for coverage calculation</b>
 
-The <i><b>[PanDepth article](https://academic.oup.com/bib/article/25/3/bbae197/7663432)</b></i> has been published in <b> [Briefings in Bioinformatics](https://academic.oup.com/bib/article/25/3/bbae197/7663432) Journal</b>, please cited this article if possible
+The <i><b>[PanDepth article](https://academic.oup.com/bib/article/25/3/bbae197/7663432)</b></i> has been published in <b> [Briefings in Bioinformatics](https://academic.oup.com/bib/article/25/3/bbae197/7663432) Journal</b>, please cited this article if possible.<br>
+
+PMID: [38701418](https://pubmed.ncbi.nlm.nih.gov/38701418/) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DOI: [10.1093/bib/bbae197](https://doi.org/10.1093/bib/bbae197)
+
 
 
 ##  1. Install
