@@ -76,7 +76,7 @@ void bamCov_help()
 		"   -t    <int>     number of threads [3]\n"
 		"   -r    <str>     reference genome file for cram decode or GC parse\n"
 		"   -c              enable the calculation of GC content (requires -r)\n"
-		"   -h              show this help [v2.24]\n"
+		"   -h              show this help [v2.25]\n"
 		"\n";
 }
 
@@ -286,10 +286,18 @@ void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneSt
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
 	{
-
-		if ( (iter->second).GeneStart >MeMEnd ) { continue;}
-		if ( (iter->second).GeneEnd <MeMStart ) { continue;}
+		if ( (MeMEnd-MeMStart)!=0)
+		{
+			if ( (iter->second).GeneStart >=MeMEnd ) { continue;}
+			if ( (iter->second).GeneEnd <MeMStart ) { continue;}
+		}
+		else
+		{
+			if ( (iter->second).GeneStart >MeMEnd ) { continue;}
+			if ( (iter->second).GeneEnd <MeMStart ) { continue;}
+		}
 		int Size=(iter->second).CDSList.size();
+		//cerr<<"\tww\t"<<iter->first<<"\t"<< (iter->second).GeneStart<<"\t"<< (iter->second).GeneEnd<<endl;
 		for (int tt=0  ; tt< Size ; tt++)
 		{
 			int ii=((iter->second).CDSList[tt].first-1)-ShiftPosition;
@@ -305,7 +313,6 @@ void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneSt
 				}
 			}
 		}
-
 	}
 }
 
@@ -745,7 +752,7 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 
 
 				auto GeneDataIT=GeneData.find(ChrNum);
-
+				//cerr<<ChrNum<<"\t"<<MeMStart<<"\t"<<MeMEnd<<endl;
 				StatChrDepthWin( depth  , GeneDataIT->second ,MeMStart,MeMEnd,ShiftPosition);
 
 				delete [] depth;
