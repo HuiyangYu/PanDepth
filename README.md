@@ -4,8 +4,9 @@
 [![GitHub stars](https://img.shields.io/github/stars/HuiyangYu/PanDepth.svg?style=social&label=Star)](https://github.com/HuiyangYu/PanDepth) [![Downloads](https://img.shields.io/github/downloads/HuiyangYu/PanDepth/total.svg?style=flat-square&label=Downloads)](https://github.com/HuiyangYu/PanDepth/releases) 
 
 <a href="https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2FHuiyangYu">
-    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FHuiyangYu&label=Visits&labelColor=%232ccce4&countColor=%23555555&labelStyle=none" style="font-size: 24px; line-height: 24px;" />
+    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FHuiyangYu&label=Visits&labelColor=%232ccce4&countColor=%23555555&labelStyle=none" height="30px" />
 </a>
+
 
 
 
