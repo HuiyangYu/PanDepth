@@ -124,7 +124,7 @@ Chr01	701	800	100	33	93	33.00	0.93
 Chr01	801	900	100	0	0	0.00	0.00
 ```
 ## 4. Performance evaluation
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The species used for software performance evaluation is Capsicum annuum, with a genome size of 3 Gb, 33688 genes, and 175274 exons. The software versions employed are as follows: Samtools (v1.16.1), BEDTools (v2.31.0), Sambamba (v1.0.0), Mosdepth (v0.3.5), Megadepth (v1.2.0), BamToCov (v2.7.0), and PanDepth (v2.19). All evaluations were conducted on nodes equipped with 52 cores and 192 GB of memory, repeated 10 times, utilizing the SLURM job scheduling system.</p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The species used for software performance evaluation is <i><b>Capsicum annuum</b></i>, which has a genome size of 3 Gb, 33,688 genes, and 175,274 exons. The software versions employed are as follows: Samtools (v1.16.1), BEDTools (v2.31.0), Sambamba (v1.0.0), Mosdepth (v0.3.5), Megadepth (v1.2.0), BamToCov (v2.7.0), and PanDepth (v2.19). All evaluations were conducted on nodes equipped with 52 cores and 192 GB of memory, repeated 10 times, utilizing the SLURM job scheduling system.</p>
 
 ### 4.1 Speed
 #### 4.1.1 genome coverage
