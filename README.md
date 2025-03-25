@@ -46,12 +46,13 @@ Usage: pandepth -i in.bam [-g gene.gff | -b region.bed] -o outPrefix
    -a              output all the site depth
  Filter options:
    -q    <int>     min mapping quality [0]
+   -d    <int>     min site depth for statistics [1]
    -x    <int>     exclude reads with any of the bits in FLAG set [1796]
  Other options:
    -t    <int>     number of threads [3]
    -r    <str>     reference genome file for cram decode or GC parse
    -c              enable the calculation of GC content (requires -r)
-   -h              show this help [v2.25]
+   -h              show this help [v2.26]
 ```
 ## 3. Example
 ### 3.1 Perform coverage analysis for each chromosome
