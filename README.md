@@ -19,9 +19,9 @@ PMID: <b>[38701418](https://pubmed.ncbi.nlm.nih.gov/38701418/)</b> &nbsp;&nbsp;&
 ##  1. Install
 ### (1) Pre-built binaries for x86_64 Linux
 ```
-wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.25/PanDepth-2.25-Linux-x86_64.tar.gz
-tar zvxf PanDepth-2.25-Linux-x86_64.tar.gz
-cd PanDepth-2.25-Linux-x86_64
+wget -c https://github.com/HuiyangYu/PanDepth/releases/download/v2.26/PanDepth-2.26-Linux-x86_64.tar.gz
+tar zvxf PanDepth-2.26-Linux-x86_64.tar.gz
+cd PanDepth-2.26-Linux-x86_64
 ./pandepth -h
 ```
 ### (2) Building from source
