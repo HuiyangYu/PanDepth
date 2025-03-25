@@ -71,12 +71,13 @@ void bamCov_help()
 		"   -a              output all the site depth\n"
 		" Filter options:\n"
 		"   -q    <int>     min mapping quality [0]\n"
+		"   -d    <int>     min site depth for statistics [1]\n"
 		"   -x    <int>     exclude reads with any of the bits in FLAG set [1796]\n"
 		" Other options:\n"
 		"   -t    <int>     number of threads [3]\n"
 		"   -r    <str>     reference genome file for cram decode or GC parse\n"
 		"   -c              enable the calculation of GC content (requires -r)\n"
-		"   -h              show this help [v2.25]\n"
+		"   -h              show this help [v2.26]\n"
 		"\n";
 }
 
@@ -223,6 +224,15 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 		{
 			paraFA04->TF=false ;
 		}
+
+		else if (flag == "d")
+		{
+			if(i + 1 == argc) {LogLackArg(flag); return 0;}
+			i++;
+			paraFA04->minDep=atoi(argv[i]);
+			if (paraFA04->minDep < 1) paraFA04->minDep = 1;
+		}
+
 		else if (flag == "help"  || flag == "h")
 		{
 			bamCov_help();return 0;
@@ -282,7 +292,7 @@ int bamCov_help01(int argc, char **argv , In3str1v * paraFA04   )
 	return Infile_count ;
 }
 
-void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneStat ,int MeMStart, int MeMEnd ,int ShiftPosition)
+void  StatChrDepthWin ( unsigned int *depth,  map <string,GeneInfo> &  GeneStat,int MeMStart, int MeMEnd ,int ShiftPosition, int minDep)
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
 	{
@@ -306,7 +316,7 @@ void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneSt
 
 			for (  ; ii<End ; ii++)
 			{
-				if ( depth[ii]>0 )
+				if ( depth[ii] >= minDep)
 				{
 					(iter->second).GeneCover++;
 					(iter->second).GeneDepth+=depth[ii];
@@ -316,7 +326,7 @@ void  StatChrDepthWin ( unsigned int *depth  ,  map <string,GeneInfo>  &  GeneSt
 	}
 }
 
-void  StatChrDepthLowMEM (  SiteInfo  * depth  ,  map <string,GeneInfo>  &  GeneStat)
+void  StatChrDepthLowMEM (SiteInfo  * depth  ,  map <string,GeneInfo>  &  GeneStat, int minDep)
 {
 	for (auto iter = GeneStat.begin(); iter != GeneStat.end(); ++iter)
 	{
@@ -327,7 +337,7 @@ void  StatChrDepthLowMEM (  SiteInfo  * depth  ,  map <string,GeneInfo>  &  Gene
 			int End=(iter->second).CDSList[tt].second ;
 			for (  ; ii<End ; ii++)
 			{
-				if ( (depth[ii].Depth)>0 )
+				if ( (depth[ii].Depth) >= minDep)
 				{
 					(iter->second).GeneCover++;
 					(iter->second).GeneDepth+=(depth[ii].Depth);
@@ -454,7 +464,7 @@ void ProDealChrBambaiOUTSite ( string  & BamPath , In3str1v * paraFA04 , SiteInf
 		auto GeneDataIT=GeneData.find(ChrNum);
 
 
-		StatChrDepthLowMEM( depth[ChrNum]  , GeneDataIT->second);
+		StatChrDepthLowMEM( depth[ChrNum]  , GeneDataIT->second, paraFA04->minDep);
 		delete [] RegionArry ;
 
 	}
@@ -753,7 +763,7 @@ void ProDealChrBambai ( string  & BamPath , In3str1v * paraFA04   ,  map <int,ma
 
 				auto GeneDataIT=GeneData.find(ChrNum);
 				//cerr<<ChrNum<<"\t"<<MeMStart<<"\t"<<MeMEnd<<endl;
-				StatChrDepthWin( depth  , GeneDataIT->second ,MeMStart,MeMEnd,ShiftPosition);
+				StatChrDepthWin( depth  , GeneDataIT->second ,MeMStart,MeMEnd,ShiftPosition, paraFA04->minDep);
 
 				delete [] depth;
 
@@ -1619,7 +1629,7 @@ int paf_main(In3str1v *paraFA04 )
 		else
 		{
 			GeneDataIT=GeneData.find(i);
-			StatChrDepthLowMEM (depth[i] , GeneDataIT->second );
+			StatChrDepthLowMEM (depth[i] , GeneDataIT->second, paraFA04->minDep);
 		}
 	}
 
@@ -1679,7 +1689,7 @@ int paf_main(In3str1v *paraFA04 )
 
 					for ( ;Start<End ; Start++)
 					{
-						if (depth[i][Start].Depth >0 )
+						if (depth[i][Start].Depth >= paraFA04->minDep)
 						{
 							GeneCover++;
 							GeneDepth+=(depth[i][Start].Depth);
@@ -1732,7 +1742,7 @@ int paf_main(In3str1v *paraFA04 )
 
 					for ( ;Start<End ; Start++)
 					{
-						if (depth[i][Start].Depth >0 )
+						if (depth[i][Start].Depth >= paraFA04->minDep )
 						{
 							GeneCover++;
 							GeneDepth+=(depth[i][Start].Depth);
@@ -2999,7 +3009,7 @@ int BamList_main(In3str1v *paraFA04 )
 		else
 		{
 			GeneDataIT=GeneData.find(i);
-			StatChrDepthLowMEM ( depth[i] , GeneDataIT->second );
+			StatChrDepthLowMEM ( depth[i] , GeneDataIT->second, paraFA04->minDep);
 		}
 	}
 
@@ -3059,7 +3069,7 @@ int BamList_main(In3str1v *paraFA04 )
 
 					for ( ;Start<End ; Start++)
 					{
-						if (depth[i][Start].Depth >0 )
+						if (depth[i][Start].Depth >= paraFA04->minDep )
 						{
 							GeneCover++;
 							GeneDepth+=(depth[i][Start].Depth);
@@ -3112,7 +3122,7 @@ int BamList_main(In3str1v *paraFA04 )
 
 					for ( ;Start<End ; Start++)
 					{
-						if (depth[i][Start].Depth >0 )
+						if (depth[i][Start].Depth >= paraFA04->minDep )
 						{
 							GeneCover++;
 							GeneDepth+=(depth[i][Start].Depth);
@@ -4309,7 +4319,7 @@ int main(int argc, char *argv[])
 
 							for ( ;Start<End ; Start++)
 							{
-								if (depth[i][Start].Depth >0 )
+								if (depth[i][Start].Depth >= paraFA04->minDep)
 								{
 									GeneCover++;
 									GeneDepth+=(depth[i][Start].Depth);
@@ -4362,7 +4372,7 @@ int main(int argc, char *argv[])
 
 							for ( ;Start<End ; Start++)
 							{
-								if (depth[i][Start].Depth >0 )
+								if (depth[i][Start].Depth >= paraFA04->minDep)
 								{
 									GeneCover++;
 									GeneDepth+=(depth[i][Start].Depth);
@@ -4716,7 +4726,7 @@ int main(int argc, char *argv[])
 			else
 			{
 				GeneDataIT=GeneData.find(i);
-				StatChrDepthLowMEM ( depth[i] , GeneDataIT->second );
+				StatChrDepthLowMEM ( depth[i] , GeneDataIT->second, paraFA04->minDep);
 			}
 		}
 
@@ -4778,7 +4788,7 @@ int main(int argc, char *argv[])
 
 						for ( ;Start<End ; Start++)
 						{
-							if (depth[i][Start].Depth >0 )
+							if (depth[i][Start].Depth >= paraFA04->minDep)
 							{
 								GeneCover++;
 								GeneDepth+=(depth[i][Start].Depth);
@@ -4831,7 +4841,7 @@ int main(int argc, char *argv[])
 
 						for ( ;Start<End ; Start++)
 						{
-							if (depth[i][Start].Depth >0 )
+							if (depth[i][Start].Depth >= paraFA04->minDep)
 							{
 								GeneCover++;
 								GeneDepth+=(depth[i][Start].Depth);
