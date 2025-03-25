@@ -30,6 +30,7 @@ class In3str1v {
 		bool SiteOutPut ;
 		uint32_t flags ;
 		int WinSize;
+		int minDep;
 		string InStr1 ;
 		vector <string> InStr1List ;
 		string InStr2 ;
@@ -53,6 +54,7 @@ class In3str1v {
 			flags=1796;
 			CPU=3;
 			WinSize=0;
+			minDep=1;
 		}
 };
 
