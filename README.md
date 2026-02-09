@@ -3,7 +3,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/HuiyangYu/PanDepth.svg?style=social&label=Star)](https://github.com/HuiyangYu/PanDepth) [![Downloads](https://img.shields.io/github/downloads/HuiyangYu/PanDepth/total.svg?style=flat-square&label=Downloads)](https://github.com/HuiyangYu/PanDepth/releases) 
 [![DOI](https://img.shields.io/badge/DOI-10.1093%2Fbib%2Fbbae197-blue)](https://doi.org/10.1093/bib/bbae197)
-[![学术引用](https://img.shields.io/badge/📖%20Citation-Please%20cite%20this%20paper-important)](https://doi.org/10.1093/bib/bbae197)
+[![Citations](https://img.shields.io/badge/dynamic/json?url=https://api.crossref.org/works/10.1093/bib/bbae197&query=$.message.['is-referenced-by-count']&label=Crossref%20Citations&color=brightgreen)](https://doi.org/10.1093/bib/bbae197)
 
 
 
