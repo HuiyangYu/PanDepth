@@ -2,7 +2,8 @@
 <b>PanDepth, an ultrafast and efficient genomic tool for coverage calculation</b>
 
 [![GitHub stars](https://img.shields.io/github/stars/HuiyangYu/PanDepth.svg?style=social&label=Star)](https://github.com/HuiyangYu/PanDepth) [![Downloads](https://img.shields.io/github/downloads/HuiyangYu/PanDepth/total.svg?style=flat-square&label=Downloads)](https://github.com/HuiyangYu/PanDepth/releases) 
-
+[![DOI](https://img.shields.io/badge/DOI-10.1093%2Fbib%2Fbbae197-blue)](https://doi.org/10.1093/bib/bbae197)
+[![Citations](https://badge.dimensions.ai/details/id/pub.1171305752/citations)](https://badge.dimensions.ai/details/id/pub.1171305752/citations)
 
 
 
